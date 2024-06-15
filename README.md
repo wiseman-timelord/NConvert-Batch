@@ -2,13 +2,13 @@
 Its a powershell interface for simplifying batch conversion with NConvert.
 
 ### Status:
-- It works well enough. I wont be updating it for a while.
+- It works well enough. I wont be updating it for a while. 
 
 ## Description:
 - This PowerShell script is designed to batch convert .pspimage files to various formats using NConvert, a command-line image conversion tool. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. After converting the files, it reports the total number of successfully converted files and prompts the user with the option to delete the original files. The script ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple .pspimage files.
 
 ## Features:
-- **Multiple Formats**: The menu has, PSPIMAGE and JPEG and PNG, I use these, ask GPT to add your own.
+- **Multiple Formats**: Type in what format you want from the list, but for reference, its JPEG not JPG, I use these, ask GPT to add your own.
 - **Interactive Menu**: Utilizing your standard text-based menu for effective configuration.
 - **Batch Conversion**: Converts all `.pspimage` files in the specified folder and its subfolders to the desired format.
 - **Automatic Report**: Provides a summary of the total number of successfully converted files.
