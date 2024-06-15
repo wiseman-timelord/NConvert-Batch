@@ -34,15 +34,12 @@ Select; Options = 1-3, Start = S, Exit = X:
 
 ### Instructions:
 1. **Download NConvert**: Get NConvert from [NConvert's download page](https://www.xnview.com/en/nconvert/#downloads).
-2. **Place Executable**: Ensure `nconvert.exe` is in the same directory as the PowerShell script.
-3. **Save Script**: Save the provided PowerShell script as `convert.ps1`.
-4. **Open PowerShell**: Launch PowerShell and navigate to the directory containing the script.
-5. **Run Script**: Execute the script by typing `.\convert.ps1` and pressing Enter.
-6. **Follow Prompts**: Use the interactive menu to set the folder location, source format, and target format.
-7. **Start Conversion**: Select the option to start the conversion process.
-8. **Review Report**: Check the report of successfully converted files.
-9. **Delete Originals**: Decide whether to delete the original files when prompted.
-10. **Exit Script**: The script will pause and exit after completing the operations.
+2. **Place Executable**: Ensure my interface is in the same directory as `nconvert.exe`.
+3. **Run Script**: Execute the script by double clicking `NConvertBatch.Bat`.
+4. **Follow Prompts**: Use the interactive menu to set the folder location, source format, and target format.
+5. **Start Conversion**: Select the option to start the conversion process.
+6. **Review Report**: Check the report of successfully converted files, and decide whether to delete the original files.
+7. **Exit Script**: The script will pause and exit after completing the operations.
 
 ## DISCLAIMER:
 This software is subject to the terms in License.Txt, covering usage, distribution, and modifications. For full details on your rights and obligations, refer to License.Txt.
