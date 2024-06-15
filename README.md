@@ -44,4 +44,5 @@ Select; Options = 1-3, Start = S, Exit = X:
 9. **Delete Originals**: Decide whether to delete the original files when prompted.
 10. **Exit Script**: The script will pause and exit after completing the operations.
 
-
+## DISCLAIMER:
+This software is subject to the terms in License.Txt, covering usage, distribution, and modifications. For full details on your rights and obligations, refer to License.Txt.
