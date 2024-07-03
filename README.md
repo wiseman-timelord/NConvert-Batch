@@ -3,7 +3,7 @@ Its a, Powershell or Puthon Gradio, interface for simplifying batch image conver
 
 ### Status:
 Under development....
-- Working on v0.02, code uploaded is considered experimental, will be release upon completion of, debug and testing.
+- Working on v0.02, code uploaded is considered experimental, features are there, just needs, debug and testing.
 - It needs to say "Delete Files After", simple replacement of text.
 
 ## Description:
