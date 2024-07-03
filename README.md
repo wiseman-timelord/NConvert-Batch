@@ -4,11 +4,6 @@ Its a, Powershell or Puthon Gradio, interface for simplifying batch image conver
 ### Status:
 Under development....
 - Working on v0.02, code uploaded is considered experimental, will be release upon completion of, debug and testing.
-- Currently there is an Error, otherwise it has a browse button now..
-```
-C:\Program Files\Python312\Lib\site-packages\gradio\components\dropdown.py:181: UserWarning: The value passed into gr.Dropdown() is not in the list of choices. Please update the list of choices to include: bmp or set allow_custom_value=True.
-  warnings.warn(
-```
 - It needs to say "Delete Files After", simple replacement of text.
 
 ## Description:
