@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 title N Convert Batch
 cd /d "%~dp0"
 color 80
-mode con: cols=49 lines=17
+rem mode con: cols=49 lines=17
 
 :menu
 cls
@@ -36,13 +36,23 @@ if "!choice!"=="1" (
 )
 
 :run_python
+cls
+echo.
+echo ================(N Convert Batch)================
+echo.
 echo Running Python Gradio Version...
-start "" python main_python.py
+python main_python.py
+pause
 goto exit
 
 :run_powershell
+cls
+echo.
+echo ================(N Convert Batch)================
+echo.
 echo Running Powershell Version...
-start "" powershell -File main_powershell.ps1
+powershell -File main_powershell.ps1
+pause
 goto exit
 
 :exit

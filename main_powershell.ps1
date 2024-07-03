@@ -3,6 +3,7 @@ $folderLocation = "X:\PathTo\YourFolder"
 $formatFrom = "pspimage"
 $formatTo = "jpeg"  # Corrected format for JPEG output
 $nconvertPath = ".\nconvert.exe"
+$deleteAfter = $false  # Default to not deleting files
 
 function Set-FolderLocation {
     Write-Host "Enter folder location (e.g., X:\...):"
@@ -17,6 +18,15 @@ function Set-FormatFrom {
 function Set-FormatTo {
     Write-Host "Select target image format (jpeg, png, bmp):"
     $formatTo = Read-Host
+}
+
+function Toggle-DeleteAfter {
+    if ($deleteAfter) {
+        $deleteAfter = $false
+    } else {
+        $deleteAfter = $true
+    }
+    Write-Host "Delete files after conversion is now set to $deleteAfter"
 }
 
 function Start-Conversion {
@@ -36,6 +46,7 @@ function Start-Conversion {
     }
 
     $convertedCount = 0
+    $errorFiles = @()
     foreach ($file in $files) {
         $inputFile = $file.FullName
         $outputFile = [System.IO.Path]::ChangeExtension($inputFile, $formatTo)
@@ -50,18 +61,20 @@ function Start-Conversion {
             $convertedCount++
         } else {
             Write-Host "Error processing $inputFile"
+            $errorFiles += $file
         }
     }
 
     Write-Host "Conversion completed. Total files converted: $convertedCount"
 
-    $deleteOriginals = Read-Host "Delete Original Files? Y/N:"
-    if ($deleteOriginals -eq "Y") {
+    if ($deleteAfter -and $errorFiles.Count -eq 0) {
         foreach ($file in $files) {
             Remove-Item -Path $file.FullName -Force
             Write-Host "Deleted $($file.FullName)"
         }
         Write-Host "Original files deleted."
+    } elseif ($deleteAfter -and $errorFiles.Count -gt 0) {
+        Write-Host "Errors occurred during processing, original files retained."
     } else {
         Write-Host "Original files retained."
     }
@@ -74,20 +87,15 @@ while ($true) {
     Write-Host "===============(N Convert Batch)================"
     Write-Host
     Write-Host
-    Write-Host
     Write-Host "                  Conversion Menu"
     Write-Host
     Write-Host "    1. Folder Location ($folderLocation)"
-    Write-Host
-    Write-Host "          2. Image Format From ($formatFrom)"
-    Write-Host
-    Write-Host "            3. Image Format To ($formatTo)"
-    Write-Host
-    Write-Host
-    Write-Host
+    Write-Host "    2. Image Format From ($formatFrom)"
+    Write-Host "    3. Image Format To ($formatTo)"
+    Write-Host "    4. Delete Files After Conversion ($deleteAfter)"
     Write-Host
     Write-Host "-------------------------------------------------"
-    Write-Host -NoNewline "Select; Options = 1-3, Start = S, Exit = X: "
+    Write-Host -NoNewline "Select; Options = 1-4, Start = S, Exit = X: "
 
     $choice = Read-Host
 
@@ -95,6 +103,7 @@ while ($true) {
         "1" { Set-FolderLocation }
         "2" { Set-FormatFrom }
         "3" { Set-FormatTo }
+        "4" { Toggle-DeleteAfter }
         "S" { Start-Conversion }
         "X" { exit }
         default { Write-Host "Invalid option. Please try again." }

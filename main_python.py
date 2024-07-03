@@ -4,6 +4,7 @@ import webbrowser
 from threading import Timer
 import subprocess
 from tkinter import Tk, filedialog
+import asyncio
 
 # Default values
 folder_location = "X:\\PathTo\\YourFolder"
@@ -154,4 +155,7 @@ def launch_gradio_interface():
                 port += 1
 
 if __name__ == "__main__":
+    # Set ProactorEventLoop for Windows explicitly
+    if os.name == 'nt':
+        asyncio.set_event_loop(asyncio.ProactorEventLoop())
     launch_gradio_interface()
