@@ -9,6 +9,7 @@ Under development....
 C:\Program Files\Python312\Lib\site-packages\gradio\components\dropdown.py:181: UserWarning: The value passed into gr.Dropdown() is not in the list of choices. Please update the list of choices to include: bmp or set allow_custom_value=True.
   warnings.warn(
 ```
+- It needs to say "Delete Files After", simple replacement of text.
 
 ## Description:
 - This was a PowerShell script designed to batch convert images from/to any format using NConvert, a command-line image conversion tool, however, this Powershell script is now optional, as one can now choose to instead use the Python version, featuring a Gradio Interface. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple .pspimage files. 
