@@ -1,5 +1,5 @@
 # NConvertBatch
-Its a, Powershell or Puthon Gradio, interface for simplifying batch conversion with NConvert.
+Its a, Powershell or Puthon Gradio, interface for simplifying batch image conversion with NConvert.
 
 ### Status:
 Under development....
