@@ -25,20 +25,15 @@ Under development....
 ===============(N Convert Batch)================
 
 
-
                   Conversion Menu
 
     1. Folder Location (X:\PathTo\YourFolder)
-
-          2. Image Format From (pspimage)
-
-            3. Image Format To (jpeg)
-
-
-
+    2. Image Format From (pspimage)
+    3. Image Format To (jpeg)
+    4. Delete Files After Conversion (False)
 
 -------------------------------------------------
-Select; Options = 1-3, Start = S, Exit = X:
+Select; Options = 1-4, Start = S, Exit = X:
 
 ```
 
