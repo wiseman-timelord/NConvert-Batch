@@ -3,7 +3,7 @@ Its a, Powershell or Puthon Gradio, interface for simplifying batch image conver
 
 ### Status:
 Under development....
-- Testing of v0.02, code is considered experimental, beta is current files.
+- Testing of v0.02, code is considered experimental, beta is current files, will be release after testing.
 - Some kind of summary display on the powershell one. 
 
 ## Description:
