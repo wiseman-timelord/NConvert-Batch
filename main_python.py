@@ -8,13 +8,13 @@ import asyncio
 
 # Default values
 folder_location = "X:\\PathTo\\YourFolder"
-format_from = "pspimage"
-format_to = "jpeg"  # Corrected format for JPEG output
+format_from = "PSPIMAGE"
+format_to = "JPEG"
 nconvert_path = ".\\nconvert.exe"
 delete_files_after = False
 
-# Allowed file formats
-allowed_formats = ["JPEG", "PNG", "BMP", "GIF", "TIFF", "HEIF", "WebP", "SVG", "PSD", "PSPIMAGE"]
+# Allowed file formats (consistent capitalization)
+allowed_formats = ["JPEG", "PNG", "BMP", "GIF", "TIFF", "HEIF", "WEBP", "SVG", "PSD", "PSPIMAGE"]
 
 # Global variables to track processing status
 files_process_done = 0
@@ -27,12 +27,12 @@ def set_folder_location(new_location):
 
 def set_format_from(new_format_from):
     global format_from
-    format_from = new_format_from.lower()
+    format_from = new_format_from.upper()  # Convert to uppercase for consistency
     return format_from
 
 def set_format_to(new_format_to):
     global format_to
-    format_to = new_format_to.lower()
+    format_to = new_format_to.upper()  # Convert to uppercase for consistency
     return format_to
 
 def set_delete_files_after(should_delete):
@@ -48,7 +48,7 @@ def start_conversion():
     
     files = [os.path.join(root, file) 
              for root, dirs, files in os.walk(folder_location) 
-             for file in files if file.endswith(f".{format_from}")]
+             for file in files if file.endswith(f".{format_from.lower()}")]
     
     if not files:
         return f"No files with the extension {format_from} found in the specified location."
@@ -57,8 +57,8 @@ def start_conversion():
     files_process_total = len(files)
 
     for input_file in files:
-        output_file = os.path.splitext(input_file)[0] + f".{format_to}"
-        command = f"{nconvert_path} -out {format_to} -o \"{output_file}\" \"{input_file}\""
+        output_file = os.path.splitext(input_file)[0] + f".{format_to.lower()}"
+        command = f"{nconvert_path} -out {format_to.lower()} -o \"{output_file}\" \"{input_file}\""
         
         result = subprocess.run(command, shell=True)
         
@@ -80,7 +80,7 @@ def launch_gradio_interface():
         
         files = [os.path.join(root, file) 
                  for root, dirs, files in os.walk(folder_location) 
-                 for file in files if file.endswith(f".{format_from}")]
+                 for file in files if file.endswith(f".{format_from.lower()}")]
         
         total_files = len(files)
         return str(total_files), str(total_files)
@@ -93,7 +93,6 @@ def launch_gradio_interface():
         root.destroy()
         if folder_selected:
             folder_location = folder_selected
-            return folder_location
         return folder_location
 
     with gr.Blocks() as demo:
@@ -107,8 +106,8 @@ def launch_gradio_interface():
                     delete_files_checkbox = gr.Checkbox(label="Delete Files After?", value=False, scale=1)
                 
                 with gr.Row():
-                    format_from_input = gr.Dropdown(label="Image Format From", choices=allowed_formats, value=format_from.upper(), interactive=True)
-                    format_to_input = gr.Dropdown(label="Image Format To", choices=allowed_formats, value=format_to.upper(), interactive=True)
+                    format_from_input = gr.Dropdown(label="Image Format From", choices=allowed_formats, value=format_from, interactive=True)
+                    format_to_input = gr.Dropdown(label="Image Format To", choices=allowed_formats, value=format_to, interactive=True)
                 
                 with gr.Row():
                     files_processed = gr.Textbox(label="Files Processed", value="0", interactive=False)
@@ -134,13 +133,13 @@ def launch_gradio_interface():
                 
                 def update_folder_location():
                     new_location = browse_folder()
-                    folder_location_display.value = new_location
+                    folder_location_display.update(value=new_location)
 
                 folder_location_display.change(set_folder_location, inputs=[folder_location_display], outputs=folder_location_display)
                 browse_button.click(update_folder_location, outputs=[folder_location_display])
                 format_from_input.change(set_format_from, inputs=[format_from_input], outputs=[format_from_input])
                 format_to_input.change(set_format_to, inputs=[format_to_input], outputs=[format_to_input])
-                delete_files_checkbox.change(set_delete_files_after, inputs=[delete_files_checkbox], outputs=delete_files_checkbox)
+                delete_files_checkbox.change(set_delete_files_after, inputs=[delete_files_checkbox], outputs=[delete_files_checkbox])
                 start_button.click(on_start_conversion, outputs=None)
                 exit_button.click(lambda: os._exit(0), outputs=None)
                 
