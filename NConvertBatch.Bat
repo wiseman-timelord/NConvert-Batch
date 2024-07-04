@@ -41,7 +41,7 @@ echo.
 echo ================(N Convert Batch)================
 echo.
 echo Running Python Gradio Version...
-python .\scripts\main_python.py
+python .\main_python.py
 pause
 goto exit
 
@@ -51,7 +51,7 @@ echo.
 echo ================(N Convert Batch)================
 echo.
 echo Running Powershell Version...
-powershell -File .\scripts\main_powershell.ps1
+powershell -File .\main_powershell.ps1
 pause
 goto exit
 
