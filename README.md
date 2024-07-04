@@ -3,8 +3,7 @@ Its a, Powershell or Puthon Gradio, interface for simplifying batch image conver
 
 ### Status:
 Under development....
-- Working on v0.02, code uploaded is considered experimental, features are there, just needs, debug and testing.
-- It needs to say "Delete Files After", simple replacement of text.
+- Gradio Interface seems to work apart from Start Conversion button. Possibly should look at the powershell version and how it does conversion, then compare, and keep in mind the new globals. 
 
 ## Description:
 - This was a PowerShell script designed to batch convert images from/to any format using NConvert, a command-line image conversion tool, however, this Powershell script is now optional, as one can now choose to instead use the Python version, featuring a Gradio Interface. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple .pspimage files. 
