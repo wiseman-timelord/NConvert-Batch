@@ -1,9 +1,5 @@
 # NConvert-Batch
-Its a Python Gradio interface for converting ANY image format to ANY imgage format, even rare ones like `.pspimage`, all made possible through `NConvert` binary command line tool.
-
-### Status:
-Under development....
-- Gradio Interface seems to work apart from Start Conversion button. Need a new session and a appropriate prompt.
+Status: Working well after recent revisit, upcoming video on youtube, and I fixed my mic.
 
 ## Description:
 Its a Python Gradio interface for converting ANY image format to ANY imgage format, even rare ones like `.pspimage`, all made possible through `NConvert` binary command line tool. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple `.pspimage` into a common format such as `.jpg`.
@@ -93,10 +89,7 @@ Please review the output above.
 2. Download the latest release of `NConvert-Batch`, ensure the files are dropped into the same directory as `nconvert.exe`.
 3. Run `NConvert-Batch.Bat` by right click `Run as Administrator`, as we are doing remote file writing with scripts.
 4. Install Requirements from menu, I worked on it till it worked comprihensively without error, automatically resolving issues. 
-4. **Follow Prompts**: Use the interactive menu to set the folder location, source format, and target format.
-5. **Start Conversion**: Select the option to start the conversion process.
-6. **Review Report**: Check if the files were successfully converted, they will be in the same folder as the originals.
-7. **Exit Script**: The script will pause and exit after completing the operations.
+5. After requirements are installed, then run `NConvert-Batch` from the menu, and the gradio interface will pop-up in the default browser, while the gradio server shell should be in the background until you close the browser tab. 
 
 ### NOTATION:
 - If your rare file format is not in the list, the lists are easiy editable, just to replace the extensions with the ones you are going to be using.
