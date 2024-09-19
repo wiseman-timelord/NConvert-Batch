@@ -90,9 +90,11 @@ Please review the output above.
 3. Run `NConvert-Batch.Bat` by right click `Run as Administrator`, as we are doing remote file writing with scripts.
 4. Install Requirements from menu, I worked on it till it worked comprihensively without error, automatically resolving issues. 
 5. After requirements are installed, then run `NConvert-Batch` from the menu, and the gradio interface will pop-up in the default browser, while the gradio server shell should be in the background until you close the browser tab. 
+6. Configure the setting, if your file format preference is not in the list, then edit relevant lists in python script by replace appropriate extension text.
+7. When all setting are correct, then 1st ensure you noticed the `Delete Original Files?` tickbox, and if you did, then click `Start Conversion`, and it will convert the files, as  you have specified, over-writing as it goes.
+8. Check the image folders, I saved you hours of work, now isnt that worth a little donation.
 
 ### NOTATION:
-- If your rare file format is not in the list, the lists are easiy editable, just to replace the extensions with the ones you are going to be using.
 - Thanks to DeepSeek v2.5 for its ability to analyze large amounts of output, and implement automated solutions along the lines of my instruction. 
 - Thanks to GPT4o with my Personalization, figuring out code for my idea, storing the librarie and versions with a `--`, and converting it to `==` when it is used. Thus reducing, garbage and complication, by 1 file.
 
