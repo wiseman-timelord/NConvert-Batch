@@ -11,7 +11,6 @@ timeout /t 1 >nul
 :: Globals Block - Do not reduce lines, unless instructed relevantly so.
 set "PYTHON_VERSION_NODECIMAL=310"
 set "PYTHON_EXE_TO_USE"=""
-set "PIP_EXE_TO_USE"=""
 set "GRADIO_VERSION=gradio--3.35.2"
 set "PANDAS_VERSION=pandas--1.5.3"
 set "NUMPY_VERSION=numpy--1.23.5"
