@@ -61,7 +61,8 @@ def start_conversion():
 
     for input_file in files:
         output_file = os.path.splitext(input_file)[0] + f".{format_to.lower()}"
-        command = f"{nconvert_path} -out {format_to.lower()} -o \"{output_file}\" \"{input_file}\""
+        # Added the -overwrite flag to prevent renaming and enforce overwriting
+        command = f"{nconvert_path} -out {format_to.lower()} -overwrite -o \"{output_file}\" \"{input_file}\""
         
         result = subprocess.run(command, shell=True)
         
