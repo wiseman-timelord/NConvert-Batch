@@ -1,3 +1,6 @@
+# Script: `.\nconvert
+
+# Imports
 import os
 import gradio as gr
 import webbrowser
@@ -12,7 +15,7 @@ workspace_path = os.path.abspath(".\\workspace")
 # Default values
 folder_location = workspace_path
 format_from = "PSPIMAGE"
-format_to = "JPEG"
+format_to = "JPG"
 nconvert_path = ".\\nconvert.exe"
 delete_files_after = False
 
@@ -49,31 +52,51 @@ def start_conversion():
     if not os.path.exists(folder_location):
         return "Please set a valid folder location."
     
-    files = [os.path.join(root, file) 
-             for root, dirs, files in os.walk(folder_location) 
-             for file in files if file.lower().endswith(f".{format_from.lower()}")]
+    files = []
+    for root, dirs, filenames in os.walk(folder_location):
+        for filename in filenames:
+            if filename.lower().endswith(f".{format_from.lower()}"):
+                files.append(os.path.join(root, filename))
 
     if not files:
         return f"No files with the extension {format_from} found in the specified location."
     
     files_process_done = 0
     files_process_total = len(files)
+    conversion_results = []
 
     for input_file in files:
         output_file = os.path.splitext(input_file)[0] + f".{format_to.lower()}"
         # Added the -overwrite flag to prevent renaming and enforce overwriting
         command = f"{nconvert_path} -out {format_to.lower()} -overwrite -o \"{output_file}\" \"{input_file}\""
         
-        result = subprocess.run(command, shell=True)
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
         
         if result.returncode == 0:
             files_process_done += 1
-    
+            conversion_results.append((input_file, True, ""))
+        else:
+            error_message = result.stderr.strip() if result.stderr else "Unknown error occurred"
+            conversion_results.append((input_file, False, error_message))
+
     if delete_files_after:
-        for input_file in files:
-            os.remove(input_file)
-    
-    return f"Conversion completed. Total files converted: {files_process_done}"
+        for input_file, success, _ in conversion_results:
+            if success:
+                try:
+                    os.remove(input_file)
+                except Exception as e:
+                    conversion_results.append((input_file, False, f"Failed to delete: {str(e)}"))
+
+    # Prepare the result message
+    result_message = f"Conversion completed. Total files processed: {files_process_total}\n"
+    result_message += f"Successfully converted: {files_process_done}\n"
+    result_message += f"Failed conversions: {files_process_total - files_process_done}\n\n"
+
+    for input_file, success, error_message in conversion_results:
+        if not success:
+            result_message += f"Error converting {input_file}: {error_message}\n"
+
+    return result_message
 
 def launch_gradio_interface():
     global files_process_done, files_process_total, folder_location, format_from, format_to
@@ -108,6 +131,8 @@ def launch_gradio_interface():
                     start_button = gr.Button("Start Conversion", scale=5)
                     exit_button = gr.Button("Exit Program", scale=1)
 
+                result_output = gr.Textbox(label="Conversion Result", interactive=False, lines=10)
+
                 def on_start_conversion():
                     result = start_conversion()
                     return result
@@ -121,7 +146,7 @@ def launch_gradio_interface():
                 format_from_input.change(fn=set_format_from, inputs=format_from_input, outputs=format_from_input)
                 format_to_input.change(fn=set_format_to, inputs=format_to_input, outputs=format_to_input)
                 delete_files_checkbox.change(fn=set_delete_files_after, inputs=delete_files_checkbox, outputs=delete_files_checkbox)
-                start_button.click(fn=on_start_conversion, inputs=None, outputs=None)
+                start_button.click(fn=on_start_conversion, inputs=None, outputs=result_output)
                 exit_button.click(fn=lambda: os._exit(0), inputs=None, outputs=None)
                 
         port = 7860
