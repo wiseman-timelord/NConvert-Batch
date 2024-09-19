@@ -130,9 +130,9 @@ echo Pip Upgraded.
 echo.
 
 echo Installing Requirements with Versions:
-echo gradio--%GRADIO_VERSION%
-echo pandas--%PANDAS_VERSION%
-echo numpy--%NUMPY_VERSION%
+echo %GRADIO_VERSION%
+echo %PANDAS_VERSION%
+echo %NUMPY_VERSION%
 echo.
 
 set "errorPackages="  :: Initialize error packages list
