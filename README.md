@@ -80,7 +80,7 @@ Please review the output above.
 ```
 
 ## Requirements:
-- [NConvert](https://www.xnview.com/en/nconvert); It converts a LOT of formats through command line interface.
+- [NConvert](https://www.xnview.com/en/nconvert) - It converts ~500 image format through command line, and is free.
 - Python 3.10 - If yer like, or edit the Python version in a Global at the top of the batch.
 - Python Requirements - They are all integrated into globals near the top of the batch.
 
