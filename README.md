@@ -19,36 +19,88 @@ Under development....
 ### Preview:
 - The Main Page (Python Gradio Version)...
 ![Alternative text](https://github.com/wiseman-timelord/NConvertBatch/blob/main/media/MainPage.jpg)
-- The Main Menu (Powershell Version)...
+- The Batch Launcher (NConvert-Batch.Bat)...
 ```
-===============(N Convert Batch)================
+========================================================================================================================
+    NConvert-Batch
+========================================================================================================================
 
 
-                  Conversion Menu
 
-    1. Folder Location (X:\PathTo\YourFolder)
-    2. Image Format From (pspimage)
-    3. Image Format To (jpeg)
-    4. Delete Files After Conversion (False)
 
--------------------------------------------------
-Select; Options = 1-4, Start = S, Exit = X:
 
+
+
+
+
+
+    1. Run NConvert-Batch
+
+    2. Install Requirements
+
+
+
+
+
+
+
+
+
+========================================================================================================================
+Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
+```
+- The `Setup-Install` Process (new code for integrated requirements list)...
+```
+========================================================================================================================
+   Run Setup-Install
+========================================================================================================================
+
+Installing Requirements...
+
+Upgrading Pip..
+Requirement already satisfied: pip in c:\users\mastar\appdata\local\programs\python\python310\lib\site-packages (24.2)
+Pip Upgraded.
+
+Installing Requirements with Versions:
+gradio--gradio--3.35.2
+pandas--pandas--1.5.3
+numpy--numpy--1.23.5
+
+Installing packageVersion...
+...
+packageVersion installed successfully.
+
+
+Verifying Packages...
+No errors encountered during installation.
+
+Detailing All Python Compatibility Issues...
+...
+Warning: Conflicts Exist.
+
+Installation complete
+
+Please review the output above.
 ```
 
 ## Requirements:
-- Windows; probably => 7
-- NConvert; If you dont have it is free, and it converts a LOT of formats.
+- [NConvert](https://www.xnview.com/en/nconvert); It converts a LOT of formats through command line interface.
+- Python 3.10 - If yer like, or edit the Python version in a Global at the top of the batch.
+- Python Requirements - They are all integrated into globals near the top of the batch.
 
 ### Instructions:
-1. **Download NConvert**: Get NConvert from [NConvert's download page](https://www.xnview.com/en/nconvert/#downloads).
-2. **Place Executable**: Ensure my NConvert Batch is in the same directory as `nconvert.exe`.
-3. **Run Script**: Execute the script by double clicking `NConvertBatch.Bat`.
-4. Decide what version you want to run, do you want common image formats or more rare, if common use the Python one.
+1. Download NConvert, get it from [here](https://www.xnview.com/en/nconvert/#downloads), unpack to a sensible directory.
+2. Download the latest release of `NConvert-Batch`, ensure the files are dropped into the same directory as `nconvert.exe`.
+3. Run `NConvert-Batch.Bat` by right click `Run as Administrator`, as we are doing remote file writing with scripts.
+4. Install Requirements from menu, I worked on it till it worked comprihensively without error, automatically resolving issues. 
 4. **Follow Prompts**: Use the interactive menu to set the folder location, source format, and target format.
 5. **Start Conversion**: Select the option to start the conversion process.
 6. **Review Report**: Check if the files were successfully converted, they will be in the same folder as the originals.
 7. **Exit Script**: The script will pause and exit after completing the operations.
+
+### NOTATION:
+- Thanks to DeepSeek v2.5 for its ability to analyze large amounts of output, and implement automated solutions along the lines of my instruction. 
+- Thanks to GPT4o with my Personalization, figuring out code for my idea, storing the librarie and versions with a `--`, and converting it to `==` when it is used. Thus reducing, garbage and complication, by 1 file.
 
 ## DISCLAIMER:
 This software is subject to the terms in License.Txt, covering usage, distribution, and modifications. For full details on your rights and obligations, refer to License.Txt.
