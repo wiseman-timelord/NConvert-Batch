@@ -95,6 +95,7 @@ Please review the output above.
 8. Check the image folders, I saved you hours of work, now isnt that worth a little donation.
 
 ### NOTATION:
+- Just so there is no confusion...Meaning 1: "Batch" - a `*.bat` Windows Batch file. Meaning 2: "Batch" - Multiple related things, done together. 
 - Thanks to DeepSeek v2.5 for its ability to analyze large amounts of output, and implement automated solutions along the lines of my instruction. 
 - Thanks to GPT4o with my Personalization, figuring out code for my idea, storing the librarie and versions with a `--`, and converting it to `==` when it is used. Thus reducing, garbage and complication, by 1 file.
 
