@@ -47,39 +47,6 @@ Its a Python Gradio interface for converting ANY image format to ANY imgage form
 ========================================================================================================================
 Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
 ```
-- The `Setup-Install` Process (new code for integrated requirements list)...
-```
-========================================================================================================================
-   Run Setup-Install
-========================================================================================================================
-
-Installing Requirements...
-
-Upgrading Pip..
-Requirement already satisfied: pip in c:\users\mastar\appdata\local\programs\python\python310\lib\site-packages (24.2)
-Pip Upgraded.
-
-Installing Requirements with Versions:
-gradio--3.35.2
-pandas--1.5.3
-numpy--1.23.5
-
-Installing packageVersion...
-...
-packageVersion installed successfully.
-
-
-Verifying Packages...
-No errors encountered during installation.
-
-Detailing All Python Compatibility Issues...
-...
-Warning: Conflicts Exist.
-
-Installation complete
-
-Please review the output above.
-```
 
 ## Requirements:
 - [NConvert](https://www.xnview.com/en/nconvert) - It converts ~500 image format through command line, and is free.
