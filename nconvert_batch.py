@@ -8,6 +8,8 @@ from threading import Timer
 import subprocess
 from tkinter import Tk, filedialog
 import asyncio
+import psutil
+import socket
 
 # Determine the full path of the workspace directory
 workspace_path = os.path.abspath(".\\workspace")
@@ -67,7 +69,6 @@ def start_conversion():
 
     for input_file in files:
         output_file = os.path.splitext(input_file)[0] + f".{format_to.lower()}"
-        # Added the -overwrite flag to prevent renaming and enforce overwriting
         command = f"{nconvert_path} -out {format_to.lower()} -overwrite -o \"{output_file}\" \"{input_file}\""
         
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
@@ -87,10 +88,9 @@ def start_conversion():
                 except Exception as e:
                     conversion_results.append((input_file, False, f"Failed to delete: {str(e)}"))
 
-    # Prepare the result message
     result_message = f"Conversion completed. Total files processed: {files_process_total}\n"
     result_message += f"Successfully converted: {files_process_done}\n"
-    result_message += f"Failed conversions: {files_process_total - files_process_done}\n\n"
+    result_message += f"Failed conversions: {files_process_total - files_process_done}"
 
     for input_file, success, error_message in conversion_results:
         if not success:
@@ -98,15 +98,39 @@ def start_conversion():
 
     return result_message
 
+def check_if_port_in_use(port):
+    """Check if the specified port is in use by any process."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        return sock.connect_ex(("localhost", port)) == 0
+
+def prompt_user_for_action():
+    """Prompt the user to decide how to handle the existing Gradio server."""
+    while True:
+        choice = input("Critical Warning: Gradio Server On Same Port!\n"
+                       "Selection; Close Other = C, Change Port = P, Run Anyway = R: ").strip().upper()
+        if choice in ['C', 'P', 'R']:
+            return choice
+        else:
+            print("Invalid selection. Please choose C, P, or R.")
+
+def close_existing_gradio_servers(port):
+    """Close existing Gradio servers running on the specified port."""
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if 'python' in proc.info['name'] and any(f"--port {port}" in arg for arg in proc.info['cmdline']):
+                proc.terminate()  # You can use proc.kill() for a forceful termination.
+        except psutil.NoSuchProcess:
+            pass
+
 def launch_gradio_interface():
     global files_process_done, files_process_total, folder_location, format_from, format_to
 
     def browse_folder():
         global folder_location
         root = Tk()
-        root.withdraw()  # Hide the main window
-        root.lift()  # Bring the window to the front
-        root.attributes("-topmost", True)  # Keep the window on top
+        root.withdraw()
+        root.lift()
+        root.attributes("-topmost", True)
         folder_selected = filedialog.askdirectory(initialdir=folder_location)
         root.destroy()
         if folder_selected:
@@ -131,7 +155,7 @@ def launch_gradio_interface():
                     start_button = gr.Button("Start Conversion", scale=5)
                     exit_button = gr.Button("Exit Program", scale=1)
 
-                result_output = gr.Textbox(label="Conversion Result", interactive=False, lines=10)
+                result_output = gr.Textbox(label="Conversion Result", interactive=False, lines=2)
 
                 def on_start_conversion():
                     result = start_conversion()
@@ -151,6 +175,15 @@ def launch_gradio_interface():
                 
         port = 7860
         while True:
+            if check_if_port_in_use(port):
+                user_choice = prompt_user_for_action()
+                if user_choice == 'C':
+                    close_existing_gradio_servers(port)
+                elif user_choice == 'P':
+                    port += 1
+                    continue
+                elif user_choice == 'R':
+                    break
             try:
                 url = f"http://localhost:{port}"
                 Timer(1, lambda: webbrowser.open(url)).start()
@@ -160,7 +193,6 @@ def launch_gradio_interface():
                 port += 1
 
 if __name__ == "__main__":
-    # Set ProactorEventLoop for Windows explicitly
     if os.name == 'nt':
         asyncio.set_event_loop(asyncio.ProactorEventLoop())
     launch_gradio_interface()
