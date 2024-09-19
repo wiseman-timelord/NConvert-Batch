@@ -1,12 +1,12 @@
 # NConvert-Batch
-Its a, Powershell or Puthon Gradio, interface for simplifying batch image conversion with NConvert.
+Its a Python Gradio interface for converting ANY image format to ANY imgage format, even rare ones like `.pspimage`, all made possible through `NConvert` binary command line tool.
 
 ### Status:
 Under development....
 - Gradio Interface seems to work apart from Start Conversion button. Need a new session and a appropriate prompt.
 
 ## Description:
-- This was a PowerShell script designed to batch convert images from/to any format using NConvert, a command-line image conversion tool, however, this Powershell script is now optional, as one can now choose to instead use the Python version, featuring a Gradio Interface. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple .pspimage files. 
+Its a Python Gradio interface for converting ANY image format to ANY imgage format, even rare ones like `.pspimage`, all made possible through `NConvert` binary command line tool. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple `.pspimage` into a common format such as `.jpg`.
 
 ## Features:
 - **Multiple Formats**: The Gradio interface limited to 10 including Pspimage, the powershell has hundereds. 
@@ -99,6 +99,7 @@ Please review the output above.
 7. **Exit Script**: The script will pause and exit after completing the operations.
 
 ### NOTATION:
+- If your rare file format is not in the list, the lists are easiy editable, just to replace the extensions with the ones you are going to be using.
 - Thanks to DeepSeek v2.5 for its ability to analyze large amounts of output, and implement automated solutions along the lines of my instruction. 
 - Thanks to GPT4o with my Personalization, figuring out code for my idea, storing the librarie and versions with a `--`, and converting it to `==` when it is used. Thus reducing, garbage and complication, by 1 file.
 
