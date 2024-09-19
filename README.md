@@ -58,9 +58,9 @@ Requirement already satisfied: pip in c:\users\mastar\appdata\local\programs\pyt
 Pip Upgraded.
 
 Installing Requirements with Versions:
-gradio--gradio--3.35.2
-pandas--pandas--1.5.3
-numpy--numpy--1.23.5
+gradio--3.35.2
+pandas--1.5.3
+numpy--1.23.5
 
 Installing packageVersion...
 ...
