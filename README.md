@@ -1,5 +1,5 @@
 # NConvert-Batch
-Status: Working well after recent revisit, upcoming video on youtube, and I fixed my mic.
+Status: Working. Re-visit did the trick, video of v1.00 is on YouTube.
 
 ## Description:
 Its a Python Gradio interface for converting ANY image format to ANY imgage format, even rare ones like `.pspimage`, all made possible through `NConvert` binary command line tool. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple `.pspimage` into a common format such as `.jpg`.
