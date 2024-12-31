@@ -22,7 +22,7 @@ nconvert_path = ".\\nconvert.exe"
 delete_files_after = False
 
 # Allowed file formats (consistent capitalization)
-allowed_formats = ["JPG", "PNG", "BMP", "GIF", "TIFF", "HEIF", "WEBP", "SVG", "PSD", "PSPIMAGE"]
+allowed_formats = ["JPEG", "PNG", "BMP", "GIF", "TIFF", "HEIF", "WEBP", "SVG", "PSD", "PSPIMAGE"]
 
 # Global variables to track processing status
 files_process_done = 0
