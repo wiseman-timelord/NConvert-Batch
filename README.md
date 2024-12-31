@@ -50,7 +50,7 @@ Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
 
 ## Requirements:
 - [NConvert](https://www.xnview.com/en/nconvert) - ~500 image formats supported (installed by installer).
-- Python 3.12 - If yer like, or edit the Python version in a Global at the top of the batch.
+- Python 3.12 - Edit the Global if you want other versions, but not sure libraries will be compatible.
 - Python Requirements - Installed from the created `.\requirements.txt`, you can inspect them there if you like.
 
 ### Instructions:
