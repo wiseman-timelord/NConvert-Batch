@@ -5,7 +5,7 @@ Status: Updating to, fix and enhance, now; critical error found.
 Its a Python Gradio interface for converting ANY image format to ANY imgage format, even rare ones like `.pspimage`, all made possible through `NConvert` binary command line tool. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple `.pspimage` into a common format such as `.jpg`.
 
 ## Features:
-- **Multiple Formats**: The Gradio interface limited to 10 including Pspimage, the powershell has hundereds. 
+- **Multiple Formats**: The Gradio interface limited to 10, but they can be edited in the `.py` script. 
 - **Interactive Menu**: Utilizing your standard text-based menu for effective configuration.
 - **Batch Conversion**: All specified format files in, specified folder and its subfolders, to desired format.
 - **Automatic Report**: Provides a summary of the total number of successfully converted files.
