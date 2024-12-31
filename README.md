@@ -54,8 +54,8 @@ Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
 - Python Requirements - Installed from the created `.\requirements.txt`, you can inspect them there if you like.
 
 ### Instructions:
-1. Run `NConvert-Batch.Bat` by right click `Run as Administrator`, as we are doing remote file writing with scripts.
-2. Install Requirements from menu, I worked on it till it worked comprihensively without error, automatically resolving issues. 
+1. Run `NConvert-Batch.Bat` by right click `Run as Administrator`, as we are doing, complex recursive file operations under the interface and downloading/unpacking NConvert in the installer.
+2. Install Requirements from menu through option `2`, it will install EVERYTHING we need, and even clean up after. 
 3. After requirements are installed, then run `NConvert-Batch` from the menu, and if the gradio interface does not pop-up in the default browser, then right click the server address and then click open.. 
 4. Configure the settings in the browser interface, if your file format preference is not in the list, then edit relevant lists in python script by replace appropriate extension text.
 7. When all setting are correct, then 1st ensure you noticed the `Delete Original Files?` tickbox, and if you did, then click `Start Conversion`, and it will convert the files, as  you have specified, over-writing as it goes.
