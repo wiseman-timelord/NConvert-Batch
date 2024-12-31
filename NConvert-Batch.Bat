@@ -9,7 +9,7 @@ echo Initialization Complete.
 timeout /t 1 >nul
 
 :: Globals Block - Do not reduce lines, unless instructed relevantly so.
-set "PYTHON_VERSION_NODECIMAL=310"
+set "PYTHON_VERSION_NODECIMAL=312"
 set "PYTHON_EXE_TO_USE="
 
 :: Skip past headers and function definitions
@@ -232,10 +232,10 @@ if not exist ".\data" (
 :: Step 8: Create .\data\requirements.txt with the required packages
 echo Creating .\data\requirements.txt...
 (
-    echo gradio==3.35.2
-    echo pandas==1.5.3
-    echo numpy==1.23.5
-    echo psutil==5.9.5
+    echo gradio==5.9.1
+    echo pandas==2.1.3
+    echo numpy==1.26.0
+    echo psutil==6.1.1
 ) > ".\data\requirements.txt"
 echo .\data\requirements.txt created.
 echo.
