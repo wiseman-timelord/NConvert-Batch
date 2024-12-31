@@ -1,5 +1,5 @@
 # NConvert-Batch
-Status: Working. Re-visit did the trick, video of v1.00 is on YouTube.
+Status: Updating to, fix and enhance, now; critical error found.
 
 ## Description:
 Its a Python Gradio interface for converting ANY image format to ANY imgage format, even rare ones like `.pspimage`, all made possible through `NConvert` binary command line tool. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple `.pspimage` into a common format such as `.jpg`.
@@ -49,24 +49,23 @@ Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
 ```
 
 ## Requirements:
-- [NConvert](https://www.xnview.com/en/nconvert) - It converts ~500 image format through command line, and is free.
+- [NConvert](https://www.xnview.com/en/nconvert) - ~500 image formats supported (installed by installer).
 - Python 3.10 - If yer like, or edit the Python version in a Global at the top of the batch.
-- Python Requirements - They are all integrated into globals near the top of the batch.
+- Python Requirements - Installed from the created `.\requirements.txt`, you can inspect them there if you like.
 
 ### Instructions:
-1. Download NConvert, get it from [here](https://www.xnview.com/en/nconvert/#downloads), unpack to a sensible directory.
-2. Download the latest release of `NConvert-Batch`, ensure the files are dropped into the same directory as `nconvert.exe`.
-3. Run `NConvert-Batch.Bat` by right click `Run as Administrator`, as we are doing remote file writing with scripts.
-4. Install Requirements from menu, I worked on it till it worked comprihensively without error, automatically resolving issues. 
-5. After requirements are installed, then run `NConvert-Batch` from the menu, and the gradio interface will pop-up in the default browser, while the gradio server shell should be in the background until you close the browser tab. 
-6. Configure the setting, if your file format preference is not in the list, then edit relevant lists in python script by replace appropriate extension text.
+1. Run `NConvert-Batch.Bat` by right click `Run as Administrator`, as we are doing remote file writing with scripts.
+2. Install Requirements from menu, I worked on it till it worked comprihensively without error, automatically resolving issues. 
+3. After requirements are installed, then run `NConvert-Batch` from the menu, and if the gradio interface does not pop-up in the default browser, then right click the server address and then click open.. 
+4. Configure the settings in the browser interface, if your file format preference is not in the list, then edit relevant lists in python script by replace appropriate extension text.
 7. When all setting are correct, then 1st ensure you noticed the `Delete Original Files?` tickbox, and if you did, then click `Start Conversion`, and it will convert the files, as  you have specified, over-writing as it goes.
 8. Check the image folders, I saved you hours of work, now isnt that worth a little donation.
 
 ### NOTATION:
-- De-Confustion... Meaning 1: "Batch" - a `*.bat` Windows Batch file. Meaning 2: "Batch" - Multiple related things, done together. 
-- Thanks to DeepSeek v2.5 for its ability to analyze large amounts of output, and implement automated solutions along the lines of my instruction. 
-- Thanks to GPT4o with my Personalization, figuring out code for my idea, storing the librarie and versions with a `--`, and converting it to `==` when it is used. Thus reducing, garbage and complication, by 1 file.
+- De-Confustion... Meaning 1: "Batch" - a `*.bat` Windows Batch file. Meaning 2: "Batch" - Repetitive actions done together in sequence. 
+- Thanks to, DeepSeek v2.5-v3 and GPT-4o, for assistance in programming . 
+- Thanks to [XnView Software](https://www.xnview.com/en/) for, creating and hosting, [NConvert](https://www.xnview.com/en/nconvert/).
 
 ## DISCLAIMER:
 This software is subject to the terms in License.Txt, covering usage, distribution, and modifications. For full details on your rights and obligations, refer to License.Txt.
+NConvert is not made by Wiseman-Timelord, only the, Gradio Interface and Batch Launcher/Installer, is; Terms and Conditions, for NConvert still apply.
