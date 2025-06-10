@@ -8,23 +8,46 @@ color 80
 echo Initialization Complete.
 timeout /t 1 >nul
 
-:: Globals Block - Do not reduce lines, unless instructed relevantly so.
-set "PYTHON_VERSION_NODECIMAL=312"
+:: Detect terminal width using PowerShell
+for /f "tokens=*" %%a in ('
+    powershell -Command ^
+        "Get-Host | Select-Object -ExpandProperty UI | Select-Object -ExpandProperty RawUI | Select-Object -ExpandProperty WindowSize | Select-Object -ExpandProperty Width"
+') do set TERMINAL_WIDTH=%%a
+
+:: Define separator length based on terminal width
+set SEPARATOR_LENGTH=119
+if "%TERMINAL_WIDTH%"=="80" set SEPARATOR_LENGTH=79
+
+:: Define separator strings
+call :buildSeparator SEPARATOR_LINE_EQ "="
+call :buildSeparator SEPARATOR_LINE_DASH "-"
+
+:: Globals Block
+set "PYTHON_VERSION_NODECIMAL=39"
 set "PYTHON_EXE_TO_USE="
 
-:: Skip past headers and function definitions
+:: Skip headers and function definitions
 goto :main_logic
+
+:: Function to build a separator string of specified length and character
+:buildSeparator
+set "target_var=%~1"
+set "char=%~2"
+set "line="
+for /l %%i in (1,1,%SEPARATOR_LENGTH%) do set "line=!line!%char%"
+set "%target_var%=%line%"
+goto :eof
 
 :: Function to print a header
 :printHeader
-echo ========================================================================================================================
+echo !SEPARATOR_LINE_EQ!
 echo    %~1
-echo ========================================================================================================================
+echo !SEPARATOR_LINE_EQ!
 goto :eof
 
-:: Function to print a separator
+:: Function to print a separator for prompts
 :printSeparator
-echo ========================================================================================================================
+echo !SEPARATOR_LINE_DASH!
 goto :eof
 
 :: Main Logic
@@ -36,20 +59,19 @@ cd /d "%ScriptDirectory%"
 echo Dp0'd to Script.
 :: DP0 TO SCRIPT BLOCK, DO NOT, MODIFY or MOVE: END
 
-:: CHECK ADMIN BLOCK, DO NOT, MODIFY or MOVE: START
+:: CHECK ADMIN BLOCK
 net session >nul 2>&1
 if %errorLevel% NEQ 0 (
     echo Error: Admin Required!
     timeout /t 2 >nul
     echo Right Click, Run As Administrator.
     timeout /t 2 >nul
-    goto :end_of_script
+    goto :end_of_file
 )
 echo Status: Administrator
 timeout /t 1 >nul
-:: CHECK ADMIN BLOCK, DO NOT, MODIFY or MOVE: END
 
-:: FIND PYTHON BLOCK, DO NOT, MODIFY or MOVE: START
+:: FIND PYTHON BLOCK
 for %%I in (
     "C:\Python%PYTHON_VERSION_NODECIMAL%\python.exe"
     "C:\Program Files\Python%PYTHON_VERSION_NODECIMAL%\python.exe"
@@ -62,18 +84,16 @@ for %%I in (
 )
 echo Error: Python %PYTHON_VERSION_NODECIMAL% not found. Please install Python %PYTHON_VERSION_NODECIMAL%.
 goto :end_of_file
+
 :found_python
 echo Python %PYTHON_VERSION_NODECIMAL% found.
 echo Using `python.exe` from: %PYTHON_EXE_TO_USE%
 echo.
-:: FIND PYTHON BLOCK, DO NOT, MODIFY or MOVE: END
 
 :: Main Code Begin
 :main_menu
 cls
 call :printHeader "NConvert-Batch"
-echo.
-echo.
 echo.
 echo.
 echo.
@@ -92,15 +112,13 @@ echo.
 echo.
 echo.
 echo.
-echo.
-echo.
 call :printSeparator
 set /p choice=Selection; Menu Options = 1-2, Exit NConvert-Batch = X: 
 
 if "!choice!"=="1" (
-    goto run_nconvert
     echo Selected: Run NConvert-Batch
     timeout /t 1 >nul
+    goto run_nconvert
 ) else if "!choice!"=="2" (
     echo Selected: Install Requirements
     timeout /t 1 >nul
@@ -142,7 +160,7 @@ echo.
 echo Launching nconvert_batch.py...
 "%PYTHON_EXE_TO_USE%" .\nconvert_batch.py
 pause
-goto exit
+goto :end_of_file
 
 :: Install requirements and capture errors
 :run_setup_install
@@ -157,10 +175,10 @@ if not exist ".\nconvert.exe" (
     echo nconvert.exe not found in the script directory.
     set /p architecture=Select CPU Architecture; x64 = 1, x32 = 2: 
     if "!architecture!"=="1" (
-        set "nconvert_url=https://download.xnview.com/NConvert-win64.zip"
+        set "nconvert_url=https://download.xnview.com/NConvert-win64.zip"   
         set "nconvert_zip=NConvert-win64.zip"
     ) else if "!architecture!"=="2" (
-        set "nconvert_url=https://download.xnview.com/NConvert-win.zip"
+        set "nconvert_url=https://download.xnview.com/NConvert-win.zip"   
         set "nconvert_zip=NConvert-win.zip"
     ) else (
         echo Invalid selection. Exiting.
@@ -176,18 +194,18 @@ if not exist ".\nconvert.exe" (
         echo.
     )
 
-	:: Step 3: Download the ZIP file to .\data
-	echo Downloading !nconvert_zip! to .\data...
-	powershell -Command "Invoke-WebRequest -Uri '!nconvert_url!' -OutFile '.\data\!nconvert_zip!'"
-	if errorlevel 1 (
-		echo Failed to download !nconvert_zip!.
-		echo Removing incomplete download...
-		if exist ".\data\!nconvert_zip!" (
-			del ".\data\!nconvert_zip!"
-		)
-		pause
-		goto :end_of_file
-	)
+    :: Step 3: Download the ZIP file to .\data
+    echo Downloading !nconvert_zip! to .\data...
+    powershell -Command "Invoke-WebRequest -Uri '!nconvert_url!' -OutFile '.\data\!nconvert_zip!'"
+    if errorlevel 1 (
+        echo Failed to download !nconvert_zip!.
+        echo Removing incomplete download...
+        if exist ".\data\!nconvert_zip!" (
+            del ".\data\!nconvert_zip!"
+        )
+        pause
+        goto :end_of_file
+    )
 
     :: Step 4: Unpack the ZIP file into .\data
     echo Unpacking !nconvert_zip!...
@@ -263,7 +281,7 @@ pause
 goto :main_menu
 
 :end_of_file
-cls  :: do not remove line
+cls
 call :printHeader "Exit NConvert-Batch"
 echo.
 timeout /t 1 >nul
