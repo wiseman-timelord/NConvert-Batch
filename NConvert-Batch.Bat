@@ -158,7 +158,7 @@ echo.
 
 :: Run the Python script
 echo Launching nconvert_batch.py...
-"%PYTHON_EXE_TO_USE%" .\nconvert_batch.py
+"%PYTHON_EXE_TO_USE%" .\launcher.py
 pause
 goto :end_of_file
 
@@ -250,7 +250,7 @@ if not exist ".\data" (
 :: Step 8: Create .\data\requirements.txt with the required packages
 echo Creating .\data\requirements.txt...
 (
-    echo gradio==5.9.1
+    echo gradio
     echo pandas==2.1.3
     echo numpy==1.26.0
     echo psutil==6.1.1
