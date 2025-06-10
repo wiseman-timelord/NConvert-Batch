@@ -78,7 +78,7 @@ for %%I in (
     "%LocalAppData%\Programs\Python\Python%PYTHON_VERSION_NODECIMAL%\python.exe"
 ) do (
     if exist "%%~I" (
-        set "PYTHON_EXE_TO_USE=%%~dpI\python.exe"
+        set "PYTHON_EXE_TO_USE=%%~I"
         goto :found_python
     )
 )
@@ -122,7 +122,7 @@ if "!choice!"=="1" (
 ) else if "!choice!"=="2" (
     echo Selected: Install Requirements
     timeout /t 1 >nul
-    goto run_setup_install
+    goto run_installer
 ) else if /i "!choice!"=="X" (
     echo Selected: Exit NConvert-Batch
     timeout /t 1 >nul
@@ -135,7 +135,7 @@ if "!choice!"=="1" (
 
 :run_nconvert
 cls
-call :printHeader "Run nConvert-Batch"
+call :printHeader "Run NConvert-Batch"
 echo.
 echo Running Python Gradio Version...
 echo Using Python executable: %PYTHON_EXE_TO_USE%
@@ -157,125 +157,43 @@ echo Checking for gradio package...
 echo.
 
 :: Run the Python script
-echo Launching nconvert_batch.py...
+echo Launching launcher.py...
 "%PYTHON_EXE_TO_USE%" .\launcher.py
 pause
 goto :end_of_file
 
-:: Install requirements and capture errors
-:run_setup_install
+:: Run Python installer
+:run_installer
 cls
-call :printHeader "Run Setup-Install"
+call :printHeader "Run Installation"
 echo.
-echo Installing Requirements...
+echo Launching Python installer...
+echo Using Python executable: %PYTHON_EXE_TO_USE%
 echo.
 
-:: Step 1: Check for nconvert.exe and download if missing
-if not exist ".\nconvert.exe" (
-    echo nconvert.exe not found in the script directory.
-    set /p architecture=Select CPU Architecture; x64 = 1, x32 = 2: 
-    if "!architecture!"=="1" (
-        set "nconvert_url=https://download.xnview.com/NConvert-win64.zip"   
-        set "nconvert_zip=NConvert-win64.zip"
-    ) else if "!architecture!"=="2" (
-        set "nconvert_url=https://download.xnview.com/NConvert-win.zip"   
-        set "nconvert_zip=NConvert-win.zip"
-    ) else (
-        echo Invalid selection. Exiting.
-        pause
-        goto :end_of_file
-    )
-
-    :: Step 2: Ensure .\data directory exists
-    if not exist ".\data" (
-        echo Creating .\data directory...
-        mkdir ".\data"
-        echo .\data directory created.
-        echo.
-    )
-
-    :: Step 3: Download the ZIP file to .\data
-    echo Downloading !nconvert_zip! to .\data...
-    powershell -Command "Invoke-WebRequest -Uri '!nconvert_url!' -OutFile '.\data\!nconvert_zip!'"
-    if errorlevel 1 (
-        echo Failed to download !nconvert_zip!.
-        echo Removing incomplete download...
-        if exist ".\data\!nconvert_zip!" (
-            del ".\data\!nconvert_zip!"
-        )
-        pause
-        goto :end_of_file
-    )
-
-    :: Step 4: Unpack the ZIP file into .\data
-    echo Unpacking !nconvert_zip!...
-    powershell -Command "Expand-Archive -Path '.\data\!nconvert_zip!' -DestinationPath '.\data\' -Force"
-    if errorlevel 1 (
-        echo Failed to unpack !nconvert_zip!.
-        pause
-        goto :end_of_file
-    )
-
-    :: Step 5: Move contents of .\data\NConvert\ to .\
-    if exist ".\data\NConvert\" (
-        echo Moving contents of .\data\NConvert\ to .\...
-        move ".\data\NConvert\*" ".\"
-        echo Moving Plugins folder to .\...
-        if exist ".\data\NConvert\Plugins" (
-            move ".\data\NConvert\Plugins" ".\"
-        )
-        echo Deleting empty .\data\NConvert\ folder...
-        rmdir /s /q ".\data\NConvert\"
-        echo Contents moved and folder deleted.
-    )
-
-    :: Step 6: Clean up the ZIP file
-    echo Cleaning up...
-    del ".\data\!nconvert_zip!"
-    echo nconvert.exe successfully downloaded and unpacked.
+:: Check if installer.py exists
+if not exist ".\installer.py" (
+    echo Error: installer.py not found in script directory!
+    echo Please ensure installer.py is present and try again.
     echo.
-) else (
-    echo nconvert.exe already exists in the script directory.
-    echo.
+    pause
+    goto :main_menu
 )
 
-:: Step 7: Check for .\data directory and create it if it doesn't exist
-if not exist ".\data" (
-    echo Creating .\data directory...
-    mkdir ".\data"
-    echo .\data directory created.
-    echo.
-)
-
-:: Step 8: Create .\data\requirements.txt with the required packages
-echo Creating .\data\requirements.txt...
-(
-    echo gradio
-    echo pandas==2.1.3
-    echo numpy==1.26.0
-    echo psutil==6.1.1
-) > ".\data\requirements.txt"
-echo .\data\requirements.txt created.
+:: Run the Python installer
+echo Running installer.py...
+echo.
+"%PYTHON_EXE_TO_USE%" .\installer.py
 echo.
 
-:: Step 9: Install requirements from .\data\requirements.txt
-echo Installing requirements from .\data\requirements.txt...
-"%PYTHON_EXE_TO_USE%" -m pip install -r ".\data\requirements.txt"
+:: Check installer exit code
 if errorlevel 1 (
-    echo Failed to install requirements.
+    echo Installation encountered errors.
+    echo Please review the output above.
 ) else (
-    echo Requirements installed successfully.
+    echo Installation completed successfully.
 )
-echo.
 
-:: Verify Installation
-echo Verifying installed packages...
-"%PYTHON_EXE_TO_USE%" -m pip list
-echo.
-
-Echo Installation complete
-echo.
-echo Please review the output above.
 echo.
 pause
 goto :main_menu
