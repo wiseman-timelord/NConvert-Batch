@@ -49,9 +49,10 @@ Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
 ```
 
 ## Requirements:
+- Windows 7-11 - The batch auto detects if the width of the terminal is 80/120 and displays text appropriately.
 - [NConvert](https://www.xnview.com/en/nconvert) - ~500 image formats supported (installed by installer).
-- Python 3.12 - Edit the Global if you want other versions, but not sure libraries will be compatible.
-- Python Requirements - Installed from the created `.\requirements.txt`, you can inspect them there if you like.
+- Python 3.8+ - Compatible with what are now the lower versions of python.
+- Python Libraries - Installed from the created `.\requirements.txt`, you can inspect them there if you like.
 
 ### Instructions:
 1. Run `NConvert-Batch.Bat` by right click `Run as Administrator`, as we are doing, complex recursive file operations under the interface and downloading/unpacking NConvert in the installer.
