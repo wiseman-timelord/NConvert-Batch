@@ -66,6 +66,7 @@ Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
 - De-Confustion... Meaning 1: "Batch" - a `*.bat` Windows Batch file. Meaning 2: "Batch" - Repetitive actions done together in sequence. 
 - Thanks to, DeepSeek v2.5-v3 and GPT-4o and Claudev4, for assistance in programming. 
 - Thanks to [XnView Software](https://www.xnview.com/en/) for, creating and hosting, [NConvert](https://www.xnview.com/en/nconvert/), the binary behind my frontend.
+- NConvert-Batch is the Windows version of [NConvert-Bash](https://github.com/wiseman-timelord/NConvert-Bash).
 
 ## DISCLAIMER:
 This software is subject to the terms in License.Txt, covering usage, distribution, and modifications. For full details on your rights and obligations, refer to License.Txt.
