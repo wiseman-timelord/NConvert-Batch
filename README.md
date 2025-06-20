@@ -63,7 +63,8 @@ Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
 8. Check the image folders, I saved you hours of work, now isnt that worth a little donation.
 
 ### NOTATION:
-- De-Confustion... Meaning 1: "Batch" - a `*.bat` Windows Batch file. Meaning 2: "Batch" - Repetitive actions done together in sequence. 
+- De-Confustion... Meaning 1: "Batch" - a `*.bat` Windows Batch file. Meaning 2: "Batch" - Repetitive actions done together in sequence.
+- If you want others among the ~500 possible formats, then you will need to manually edit the top of ".\launcher.py".
 - Thanks to, DeepSeek v2.5-v3 and GPT-4o and Claudev4, for assistance in programming. 
 - Thanks to [XnView Software](https://www.xnview.com/en/) for, creating and hosting, [NConvert](https://www.xnview.com/en/nconvert/), the binary behind my frontend.
 - NConvert-Batch is the Windows version of [NConvert-Bash](https://github.com/wiseman-timelord/NConvert-Bash).
