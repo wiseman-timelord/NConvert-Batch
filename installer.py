@@ -26,7 +26,7 @@ REQUIRED_PACKAGES = [  # Python packages to install
     'gradio',
     'pandas==2.1.3', 
     'numpy==1.26.0',
-    'psutil==6.1.1'
+    'psutil==5.9.4'
 ]
 
 PACKAGE_IMPORT_MAP = {  # Map package names to import names
@@ -40,6 +40,8 @@ MIN_PYTHON_VERSION = (3, 8)  # Minimum required Python version
 SEPARATOR_LENGTH = 60  # Length of separator lines
 HEADER_CHAR = "="  # Character for headers
 SEPARATOR_CHAR = "-"  # Character for separators
+MAX_RETRIES = 3  # Maximum download retry attempts
+RETRY_DELAY = 2  # Seconds between retries
 
 
 class NConvertInstaller:
@@ -69,7 +71,7 @@ class NConvertInstaller:
         
     def print_status(self, message, success=True):
         """Print a status message with checkmark or X"""
-        symbol = "V" if success else "X"
+        symbol = "✓" if success else "✗"
         print(f"{symbol} {message}")
         
     def check_python_version(self):
@@ -136,44 +138,115 @@ class NConvertInstaller:
             return False
             
     def download_file(self, url, destination):
-        """Download file with improved progress display and error handling"""
-        try:
-            print(f"Downloading: {url}")
-            print(f"Destination: {destination}")
-            
-            start_time = time.time()
-            last_update = 0
-            
-            def progress_hook(block_num, block_size, total_size):
-                nonlocal last_update
-                current_time = time.time()
+        """Download file with robust retries, resume, and verification"""
+        retry_count = 0
+        downloaded_bytes = 0
+        total_size = 0
+        last_valid_position = 0
+        
+        # Check for existing partial download
+        if destination.exists():
+            downloaded_bytes = destination.stat().st_size
+            print(f"Resuming download at: {downloaded_bytes/(1024*1024):.1f}MB")
+            last_valid_position = downloaded_bytes
+        
+        while retry_count < MAX_RETRIES:
+            try:
+                req = urllib.request.Request(url)
                 
-                if total_size > 0 and (current_time - last_update) >= 0.5:  # Update every 0.5 seconds
-                    downloaded = min(block_num * block_size, total_size)
-                    percent = (downloaded * 100) // total_size
-                    mb_downloaded = downloaded / (1024 * 1024)
-                    mb_total = total_size / (1024 * 1024)
+                # Add range header if resuming
+                if downloaded_bytes > 0:
+                    req.add_header("Range", f"bytes={downloaded_bytes}-")
+                
+                print(f"Download attempt {retry_count + 1}/{MAX_RETRIES}")
+                start_time = time.time()
+                
+                with urllib.request.urlopen(req) as response:
+                    # Get total file size
+                    content_range = response.getheader('Content-Range')
+                    if content_range:
+                        total_size = int(content_range.split('/')[-1])
+                    else:
+                        total_size = int(response.getheader('Content-Length', 0)) + downloaded_bytes
                     
-                    print(f"\rProgress: {percent:3d}% ({mb_downloaded:.1f}/{mb_total:.1f} MB)", 
-                          end='', flush=True)
-                    last_update = current_time
+                    # Check if server supports resume
+                    if downloaded_bytes > 0 and content_range is None:
+                        print("Server doesn't support resume - restarting")
+                        downloaded_bytes = 0
+                        last_valid_position = 0
+                        mode = 'wb'
+                    else:
+                        mode = 'ab' if downloaded_bytes > 0 else 'wb'
                     
-            urllib.request.urlretrieve(url, destination, progress_hook)
+                    with open(destination, mode) as f:
+                        while True:
+                            chunk = response.read(8192)
+                            if not chunk:
+                                break
+                            f.write(chunk)
+                            downloaded_bytes += len(chunk)
+                            last_valid_position = downloaded_bytes
+                            
+                            # Simple progress update
+                            if total_size > 0:
+                                percent = (downloaded_bytes * 100) // total_size
+                                mb_downloaded = downloaded_bytes / (1024 * 1024)
+                                print(f"\rProgress: {percent}% ({mb_downloaded:.1f}MB)", end='')
+                    
+                    # Verify download completion
+                    if total_size > 0 and downloaded_bytes < total_size:
+                        print(f"\nDownload incomplete: {downloaded_bytes}/{total_size} bytes")
+                        raise urllib.error.URLError("Incomplete download")
+                    
+                    elapsed = time.time() - start_time
+                    speed = (downloaded_bytes / (1024 * 1024)) / max(elapsed, 1)
+                    print(f"\nDownload complete: {speed:.1f}MB/s")
+                    
+                    # Verify ZIP integrity immediately
+                    try:
+                        with zipfile.ZipFile(destination, 'r') as zip_ref:
+                            if zip_ref.testzip() is not None:
+                                print("ZIP verification failed - retrying")
+                                raise zipfile.BadZipFile("Corrupted download")
+                        return True
+                    except zipfile.BadZipFile:
+                        print("Download corrupted - bad ZIP file")
+                        raise
+                        
+            except urllib.error.HTTPError as e:
+                print(f"HTTP error: {e.code}")
+                if e.code == 416:  # Range not satisfiable
+                    destination.unlink(missing_ok=True)
+                    downloaded_bytes = 0
+                    last_valid_position = 0
+            except (urllib.error.URLError, ConnectionResetError, TimeoutError) as e:
+                print(f"Network error: {e}")
+            except zipfile.BadZipFile:
+                print("Invalid ZIP structure - retrying")
+            except Exception as e:
+                print(f"Download error: {e}")
             
-            elapsed = time.time() - start_time
-            file_size = destination.stat().st_size / (1024 * 1024)
-            print(f"\nDownload completed in {elapsed:.1f}s ({file_size:.1f} MB)")
-            return True
+            # Roll back to last known good position
+            if destination.exists():
+                if downloaded_bytes != last_valid_position:
+                    try:
+                        destination.truncate(last_valid_position)
+                        downloaded_bytes = last_valid_position
+                        print(f"Rolled back to last valid position: {last_valid_position} bytes")
+                    except Exception as e:
+                        print(f"Failed to truncate file: {e}")
+                        destination.unlink(missing_ok=True)
+                        downloaded_bytes = 0
+                        last_valid_position = 0
             
-        except urllib.error.HTTPError as e:
-            print(f"\nHTTP Error {e.code}: {e.reason}")
-            return False
-        except urllib.error.URLError as e:
-            print(f"\nNetwork Error: {e.reason}")
-            return False
-        except Exception as e:
-            print(f"\nDownload failed: {e}")
-            return False
+            retry_count += 1
+            if retry_count < MAX_RETRIES:
+                print(f"Retrying in {RETRY_DELAY}s...")
+                time.sleep(RETRY_DELAY)
+                continue
+                
+        print("Max retries reached")
+        return False
             
     def extract_zip(self, zip_path, extract_to):
         """Extract ZIP file with improved error handling"""
@@ -252,7 +325,7 @@ class NConvertInstaller:
             return False
             
     def install_nconvert(self):
-        """Download and install NConvert executable"""
+        """Download and install NConvert executable with robust error handling"""
         if self.nconvert_exe.exists():
             self.print_status("nconvert.exe already exists")
             return True
@@ -269,13 +342,30 @@ class NConvertInstaller:
         if zip_path.exists():
             zip_path.unlink()
         
-        # Download
+        # Download with retries
         if not self.download_file(url, zip_path):
             # Clean up failed download
             if zip_path.exists():
                 zip_path.unlink()
             return False
             
+        # Verify ZIP integrity before extraction
+        try:
+            print("Verifying download integrity...")
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                if zip_ref.testzip() is not None:
+                    self.print_status("Download corrupted - bad ZIP file", success=False)
+                    zip_path.unlink()
+                    return False
+        except zipfile.BadZipFile:
+            self.print_status("Invalid ZIP file - download may be incomplete", success=False)
+            zip_path.unlink()
+            return False
+        except Exception as e:
+            self.print_status(f"ZIP verification failed: {e}", success=False)
+            zip_path.unlink()
+            return False
+        
         # Extract to temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
@@ -291,7 +381,7 @@ class NConvertInstaller:
         # Clean up ZIP file
         zip_path.unlink(missing_ok=True)
         
-        # Verify installation
+        # Final verification
         if self.nconvert_exe.exists():
             self.print_status("NConvert installation completed")
             return True
@@ -450,9 +540,9 @@ def main():
         
         print(f"\n{'='*SEPARATOR_LENGTH}")
         if success:
-            print("V Installation completed successfully!")
+            print("✓ Installation completed successfully!")
         else:
-            print("X Installation encountered errors!")
+            print("✗ Installation encountered errors!")
             
         print("Press Enter to exit...")
         input()
