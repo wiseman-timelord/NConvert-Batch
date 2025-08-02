@@ -23,8 +23,9 @@ call :buildSeparator SEPARATOR_LINE_EQ "="
 call :buildSeparator SEPARATOR_LINE_DASH "-"
 
 :: Globals Block
-set "PYTHON_VERSION_NODECIMAL=39"
 set "PYTHON_EXE_TO_USE="
+set "PYTHON_VERSION_FOUND="
+set "BEST_SCORE=0"
 
 :: Skip headers and function definitions
 goto :main_logic
@@ -71,23 +72,39 @@ if %errorLevel% NEQ 0 (
 echo Status: Administrator
 timeout /t 1 >nul
 
-:: FIND PYTHON BLOCK
-for %%I in (
-    "C:\Python%PYTHON_VERSION_NODECIMAL%\python.exe"
-    "C:\Program Files\Python%PYTHON_VERSION_NODECIMAL%\python.exe"
-    "%LocalAppData%\Programs\Python\Python%PYTHON_VERSION_NODECIMAL%\python.exe"
-) do (
-    if exist "%%~I" (
-        set "PYTHON_EXE_TO_USE=%%~I"
-        goto :found_python
+:: FIND PYTHON BLOCK - DYNAMIC DETECTION
+echo Searching for Python installations...
+
+rem Define search locations
+set "LOC1=%LOCALAPPDATA%\Programs\Python"
+set "LOC2=%ProgramFiles%\Python"
+set "LOC3=%ProgramFiles(x86)%\Python"
+
+for %%L in ("%LOC1%" "%LOC2%" "%LOC3%") do (
+    if exist %%L (
+        for /f "delims=" %%D in ('dir /b /s "%%L\python.exe" 2^>nul') do (
+            for /f "tokens=2" %%V in ('"%%D" --version 2^>nul') do (
+                for /f "tokens=1,2 delims=." %%A in ("%%V") do (
+                    set /a "NUM=%%A*100+%%B"
+                    if !NUM! geq 308 if !NUM! leq 312 if !NUM! gtr !BEST_SCORE! (
+                        set "BEST_SCORE=!NUM!"
+                        set "PYTHON_EXE_TO_USE=%%D"
+                        set "PYTHON_VERSION_FOUND=%%V"
+                    )
+                )
+            )
+        )
     )
 )
-echo Error: Python %PYTHON_VERSION_NODECIMAL% not found. Please install Python %PYTHON_VERSION_NODECIMAL%.
-goto :end_of_file
 
-:found_python
-echo Python %PYTHON_VERSION_NODECIMAL% found.
-echo Using `python.exe` from: %PYTHON_EXE_TO_USE%
+if not defined PYTHON_EXE_TO_USE (
+    echo Error: No Python 3.8-3.12 found. Please install Python from python.org
+    timeout /t 3 >nul
+    goto :end_of_file
+)
+
+echo Python %PYTHON_VERSION_FOUND% found.
+echo Using python.exe from: %PYTHON_EXE_TO_USE%
 echo.
 
 :: Main Code Begin
