@@ -51,7 +51,7 @@ Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
 ## Requirements:
 - Windows 7-11 - The batch auto detects if the width of the terminal is 80/120 and displays text appropriately.
 - [NConvert](https://www.xnview.com/en/nconvert) - ~500 image formats supported (installed by installer).
-- Python 3.8+ - Compatible with what are now the lower versions of python.
+- Python 3.9+ - Compatible with, the newer and what are now the older, versions of python.
 - Python Libraries - Installed from the created `.\requirements.txt`, you can inspect them there if you like.
 
 ### Instructions:
