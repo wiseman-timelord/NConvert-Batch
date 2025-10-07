@@ -10,6 +10,7 @@ Its a Python Gradio interface for converting ANY image format to ANY imgage form
 - **Batch Conversion**: All specified format files in, specified folder and its subfolders, to desired format.
 - **Automatic Report**: Provides a summary of the total number of successfully converted files.
 - **Deletion Option**: Offers the option to delete original files.
+- **Persistent Settings**: Remembers format from/to and target folder.
 - **Error Handling**: Displays errors for any files that fail to convert.
 
 ### Preview:
