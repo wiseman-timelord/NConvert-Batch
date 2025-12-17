@@ -23,13 +23,13 @@ NCONVERT_URLS = {  # Download URLs for NConvert
 }
 
 REQUIRED_PACKAGES = [  # Python packages to install
-    'gradio',
+    'gradio==5.49.1',
     'pandas==2.1.3',
     'numpy==1.26.0',
     'psutil==5.9.4'
 ]
 
-PACKAGE_IMPORT_MAP = {  # Map package names to import names
+PACKAGE_IMPORT_MAP = {  # Map5.49.1 package names to import names
     'gradio': 'gradio',
     'pandas': 'pandas',
     'numpy': 'numpy',

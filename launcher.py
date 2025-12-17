@@ -1,5 +1,5 @@
 # Script: launcher.py  (COMPLETE UPDATED FILE)
-# Compatible with Python 3.9 and Windows Server 2012
+# Compatible with Python 3.9-3.11 and Server2012-Windows10
 
 # Imports
 import os
@@ -249,7 +249,16 @@ def create_gradio_interface():
             os._exit(0)
         except:
             sys.exit(0)
-    with gr.Blocks(title="NConvert Batch Processor", theme=gr.themes.Default()) as demo:
+
+    css = """
+    /* double-height buttons */
+    button {
+        min-height: 60px !important;   /* Gradio default ≈30 px */
+        height:     60px !important;
+    }
+    """
+
+    with gr.Blocks(title="NConvert Batch Processor", theme=gr.themes.Default(), css=css) as demo:
         gr.Markdown("# NConvert Batch Image Converter")
         gr.Markdown("Convert multiple image files from one format to another using NConvert.")
         with gr.Row():
@@ -281,9 +290,6 @@ def create_gradio_interface():
                 value=False,
                 scale=1
             )
-        with gr.Row():
-            start_button = gr.Button("Start Conversion", variant="primary", scale=4)
-            exit_button = gr.Button("Exit Program", variant="stop", scale=1)
         result_output = gr.Textbox(
             label="Conversion Results",
             interactive=False,
@@ -291,6 +297,10 @@ def create_gradio_interface():
             max_lines=20,
             show_copy_button=True
         )
+        with gr.Row():
+            start_button = gr.Button("Start Conversion", variant="primary", scale=4)
+            exit_button = gr.Button("Exit Program", variant="stop", scale=1)
+
         # Connect events
         browse_button.click(fn=browse_folder, inputs=None, outputs=folder_location_display)
         folder_location_display.change(fn=set_folder_location, inputs=folder_location_display, outputs=folder_location_display)
