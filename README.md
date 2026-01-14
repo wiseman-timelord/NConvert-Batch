@@ -17,38 +17,48 @@ Its a Python Gradio interface for converting ANY image format to ANY imgage form
 ### Preview:
 - The Video Demonstration on YouTube (for v1.00-Final)...
 <br>[![NConvert-Batch on YouTube](./media/wisetime_youtube.jpg)](https://www.youtube.com/watch?v=ECydHjJ04U4)
+
 - The NConvert-Batch Gradio WebUi...
 ![Alternative text](https://github.com/wiseman-timelord/NConvertBatch/blob/main/media/gradio_interface.jpg)
-- The Batch Launcher (NConvert-Batch.Bat)...
-```
-========================================================================================================================
-    NConvert-Batch
-========================================================================================================================
 
+- The installation processes...
+<details> 
 
-
-
-
-
-
-
-
-
-    1. Run NConvert-Batch
-
-    2. Install Requirements
-
-
-
-
-
-
-
-
-
-========================================================================================================================
-Selection; Menu Options = 1-2, Exit NConvert-Batch = X:
-```
+    ============================================================
+        NConvert-Batch Installer
+    ============================================================
+    
+    V Python 3.11 detected
+    V Workspace directory ready: C:\Program_Files\NConvert-Batch\NConvert-Batch-1.2\
+    temp
+    V nconvert.exe already exists
+    
+    Upgrading build tools (pip, setuptools) to latest...
+    → Upgrading pip to latest version...
+    V pip upgraded successfully
+    → Upgrading setuptools to latest version...
+    V setuptools upgraded successfully
+    
+    Installing pinned application packages...
+    V All application packages installed successfully
+    V Default persistent config created: data/persistent.json
+    
+    Verifying critical components...
+    V nconvert.exe found
+    V gradio available
+    V pandas available
+    V numpy available
+    V psutil available
+    V All critical components verified successfully
+    
+    ============================================================
+    V Installation completed successfully!
+    
+    You can now run NConvert-Batch.bat
+    
+    Press Enter to exit...
+    
+</details>
 
 ## Requirements:
 - Windows 7-11 - The batch auto detects if the width of the terminal is 80/120 and displays text appropriately.
