@@ -72,7 +72,7 @@ Its a Python Gradio interface for converting ANY image format to ANY imgage form
 3. After requirements are installed, then run `NConvert-Batch` from `1.` on the batch menu, and if the gradio interface does not pop-up in the default browser, then right click the server address and then click open.. 
 4. Configure the settings in the browser interface, if your file format preference is not in the list, then edit relevant lists in python script by replace appropriate extension text.
 7. When all setting are correct, then 1st ensure you noticed the `Delete Original Files?` tickbox, and if you did, then click `Start Conversion`, and it will convert the files, as  you have specified, over-writing as it goes.
-8. Check the image folders, I saved you hours of work, now isnt that worth a little donation.
+8. Check the image folders, I saved you hours of work, but I did say I was a TimeLord ha.
 
 ### NOTATION:
 - De-Confustion... Meaning 1: "Batch" - a `*.bat` Windows Batch file. Meaning 2: "Batch" - Repetitive actions done together in sequence.
