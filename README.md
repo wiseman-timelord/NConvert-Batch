@@ -80,7 +80,7 @@ Its a Python Gradio interface for converting ANY image format to ANY imgage form
 - Thanks to, DeepSeek v2.5-v3 and GPT-4o and Claudev4 and Grok and Qwen3-Max, for assistance in programming. 
 - Thanks to [XnView Software](https://www.xnview.com/en/) for, creating and hosting, [NConvert](https://www.xnview.com/en/nconvert/), the binary behind my frontend.
 - NConvert-Batch is the Windows version of [NConvert-Bash](https://github.com/wiseman-timelord/NConvert-Bash).
-- A slideshow window for after conversion was attempted in, Qwen3-Max and Grok, but both failed, the idea was to temp copy converted files to `.\temp\preview`.
+- A slideshow window for after conversion was attempted in, Qwen3-Max and Grok, but both failed, 50/50 on the idea anyhow.
 
 ## DISCLAIMER:
 This software is subject to the terms in License.Txt, covering usage, distribution, and modifications. For full details on your rights and obligations, refer to License.Txt.
