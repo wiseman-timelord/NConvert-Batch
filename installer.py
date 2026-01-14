@@ -18,8 +18,8 @@ import json
 
 # Global Constants
 NCONVERT_URLS = {  # Download URLs for NConvert
-    'x64': 'https://download.xnview.com/NConvert-win64.zip  ',
-    'x32': 'https://download.xnview.com/NConvert-win.zip  '
+    'x64': 'https://download.xnview.com/NConvert-win64.zip',
+    'x32': 'https://download.xnview.com/NConvert-win.zip'
 }
 
 # All application packages with pinned versions
@@ -98,11 +98,11 @@ PACKAGE_IMPORT_MAP = {  # Map package names to import names for verification
 }
 
 MIN_PYTHON_VERSION = (3, 8)  # Minimum required Python version
-SEPARATOR_LENGTH = 60
+SEPARATOR_LENGTH = 79
 HEADER_CHAR = "="
 SEPARATOR_CHAR = "-"
-MAX_RETRIES = 3
-RETRY_DELAY = 2
+MAX_RETRIES = 4           # slightly more forgiving
+RETRY_DELAY = 4           # give server/network more time to recover
 
 # Default settings for persistent.json
 DEFAULT_SESSION = {
@@ -190,39 +190,69 @@ class NConvertInstaller:
 
     def download_file(self, url, destination):
         retry_count = 0
-        downloaded_bytes = 0
+        local_size = 0
+
         if destination.exists():
-            downloaded_bytes = destination.stat().st_size
-            print(f"Resuming download at: {downloaded_bytes/(1024*1024):.1f}MB")
-        
+            local_size = destination.stat().st_size
+            print(f"Found partial download ({local_size / (1024*1024):.1f} MB) → will attempt to resume")
+
         while retry_count < MAX_RETRIES:
             try:
                 req = urllib.request.Request(url)
-                if downloaded_bytes > 0:
-                    req.add_header("Range", f"bytes={downloaded_bytes}-")
-                print(f"Download attempt {retry_count + 1}/{MAX_RETRIES}")
-                start_time = time.time()
-                with urllib.request.urlopen(req) as response:
-                    total_size = int(response.getheader('Content-Length', 0)) + downloaded_bytes
-                    with open(destination, 'ab' if downloaded_bytes > 0 else 'wb') as f:
+                if local_size > 0:
+                    req.add_header("Range", f"bytes={local_size}-")
+
+                attempt_type = "Resuming" if local_size > 0 else "Starting"
+                print(f"\nDownload attempt {retry_count + 1}/{MAX_RETRIES} - {attempt_type} download...")
+
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    total_size = int(response.getheader('Content-Length', 0)) + local_size
+                    mode = 'ab' if local_size > 0 else 'wb'
+
+                    with open(destination, mode) as f:
+                        downloaded_bytes = local_size
                         while True:
                             chunk = response.read(8192)
                             if not chunk:
                                 break
                             f.write(chunk)
                             downloaded_bytes += len(chunk)
+
                             if total_size > 0:
                                 percent = (downloaded_bytes * 100) // total_size
                                 mb_downloaded = downloaded_bytes / (1024 * 1024)
-                                print(f"\rProgress: {percent}% ({mb_downloaded:.1f}MB)", end='')
-                print()  # newline after progress
-                return True
+                                print(f"\rProgress: {percent:3d}%  ({mb_downloaded:6.1f}/{total_size/(1024*1024):.1f} MB)", end='')
+                            else:
+                                print(f"\rDownloaded: {downloaded_bytes/(1024*1024):.1f} MB", end='')
+
+                    print()  # final newline
+
+                    # Final size check
+                    final_size = destination.stat().st_size
+                    if total_size > 0 and final_size != total_size:
+                        print(f"\nIncomplete download detected ({final_size} / {total_size} bytes)")
+                        raise ConnectionError("Download incomplete")
+
+                    print("Download completed successfully ✓")
+                    return True
+
             except Exception as e:
-                print(f"Download error: {e}")
+                print(f"\nDownload failed: {str(e)}")
                 retry_count += 1
+
                 if retry_count < MAX_RETRIES:
-                    print(f"Retrying in {RETRY_DELAY}s...")
+                    # Do NOT delete partial file when retrying - we want to resume
+                    print(f"Retrying in {RETRY_DELAY} seconds... (attempt {retry_count + 1}/{MAX_RETRIES})")
                     time.sleep(RETRY_DELAY)
+                    # Update local_size for next resume attempt
+                    if destination.exists():
+                        local_size = destination.stat().st_size
+                else:
+                    # Only on final failure do we clean up
+                    print("Maximum retries reached. Cleaning up partial file...")
+                    destination.unlink(missing_ok=True)
+                    return False
+
         return False
 
     def extract_zip(self, zip_path, extract_to):
@@ -269,14 +299,18 @@ class NConvertInstaller:
             self.print_status("nconvert.exe already exists")
             return True
         
-        print("NConvert executable not found, starting download...")
+        print("NConvert not found, attempting download...")
         architecture = self.prompt_architecture()
         url = NCONVERT_URLS[architecture]
         zip_name = f"NConvert-win{'64' if architecture == 'x64' else ''}.zip"
-        zip_path = tempfile.NamedTemporaryFile(suffix='.zip', delete=False).name
-        zip_path = Path(zip_path)
+        
+        # Better naming for temp file (easier to recognize when debugging)
+        with tempfile.NamedTemporaryFile(suffix='.zip', prefix='nconvert-', delete=False) as tmp:
+            zip_path = Path(tmp.name)
 
-        if not self.download_file(url, zip_path):
+        success = self.download_file(url, zip_path)
+
+        if not success:
             zip_path.unlink(missing_ok=True)
             return False
 
@@ -410,7 +444,6 @@ class NConvertInstaller:
 
         return success
 
-
 def main():
     installer = NConvertInstaller()
     try:
@@ -422,13 +455,11 @@ def main():
         print("\n\nInstallation cancelled by user")
         sys.exit(1)
     except Exception as e:
-        print("\n" + "=" * 60)
         print("Unexpected error during installation:")
         print(str(e))
         print("\nPress Enter to exit...")
         input()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
