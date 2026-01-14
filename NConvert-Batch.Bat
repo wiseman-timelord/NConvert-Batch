@@ -167,7 +167,7 @@ if errorlevel 1 (
     echo Please run the installer option again from the main menu.
 )
 
-pause
+REM pause
 goto :main_menu
 
 :: Run Python installer
