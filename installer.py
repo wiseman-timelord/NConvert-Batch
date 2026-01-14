@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# script: installer.py
 """
 NConvert-Batch Installer
 Handles all installation requirements for NConvert-Batch application
@@ -14,22 +14,83 @@ import urllib.error
 from pathlib import Path
 import tempfile
 import time
-import json   # NEW
+import json
 
 # Global Constants
 NCONVERT_URLS = {  # Download URLs for NConvert
-    'x64': 'https://download.xnview.com/NConvert-win64.zip',
-    'x32': 'https://download.xnview.com/NConvert-win.zip'
+    'x64': 'https://download.xnview.com/NConvert-win64.zip  ',
+    'x32': 'https://download.xnview.com/NConvert-win.zip  '
 }
 
-REQUIRED_PACKAGES = [  # Python packages to install
-    'gradio==5.49.1',
-    'pandas==2.1.3',
-    'numpy==1.26.0',
-    'psutil==5.9.4'
+# All application packages with pinned versions
+INSTALL_PACKAGES = [
+    "aiofiles==24.1.0",
+    "annotated-doc==0.0.4",
+    "annotated-types==0.7.0",
+    "anyio==4.12.0",
+    "autobuild==3.10.1",
+    "backports.zstd==1.2.0",
+    "brotli==1.2.0",
+    "certifi==2025.11.12",
+    "click==8.3.1",
+    "colorama==0.4.6",
+    "fastapi==0.124.4",
+    "ffmpy==1.0.0",
+    "filelock==3.20.1",
+    "fsspec==2025.12.0",
+    "gradio==5.49.1",
+    "gradio_client==1.13.3",
+    "groovy==0.1.2",
+    "h11==0.16.0",
+    "hf-xet==1.2.0",
+    "httpcore==1.0.9",
+    "httpx==0.28.1",
+    "huggingface_hub==1.2.3",
+    "idna==3.11",
+    "Jinja2==3.1.6",
+    "llsd==1.2.4",
+    "markdown-it-py==4.0.0",
+    "MarkupSafe==3.0.3",
+    "mdurl==0.1.2",
+    "numpy==1.26.0",
+    "orjson==3.11.5",
+    "packaging==25.0",
+    "pandas==2.1.3",
+    "pillow==11.3.0",
+    "psutil==5.9.4",
+    "pydantic==2.11.10",
+    "pydantic_core==2.33.2",
+    "pydot==4.0.1",
+    "pydub==0.25.1",
+    "Pygments==2.19.2",
+    "pyparsing==3.2.5",
+    "python-dateutil==2.9.0.post0",
+    "python-multipart==0.0.20",
+    "pytz==2025.2",
+    "PyYAML==6.0.3",
+    "pyzstd==0.19.1",
+    "rich==14.2.0",
+    "ruff==0.14.9",
+    "safehttpx==0.1.7",
+    "semantic-version==2.10.0",
+    "shellingham==1.5.4",
+    "six==1.17.0",
+    "starlette==0.50.0",
+    "tomlkit==0.13.3",
+    "tqdm==4.67.1",
+    "typer==0.20.0",
+    "typer-slim==0.20.0",
+    "typing_extensions==4.15.0",
+    "typing-inspection==0.4.2",
+    "tzdata==2025.3",
+    "uvicorn==0.38.0",
+    "websockets==15.0.1"
 ]
 
-PACKAGE_IMPORT_MAP = {  # Map5.49.1 package names to import names
+# Critical packages for verification (subset of installed packages)
+CRITICAL_PACKAGES = ['gradio', 'pandas', 'numpy', 'psutil']
+
+PACKAGE_IMPORT_MAP = {  # Map package names to import names for verification
     'gradio': 'gradio',
     'pandas': 'pandas',
     'numpy': 'numpy',
@@ -37,27 +98,29 @@ PACKAGE_IMPORT_MAP = {  # Map5.49.1 package names to import names
 }
 
 MIN_PYTHON_VERSION = (3, 8)  # Minimum required Python version
-SEPARATOR_LENGTH = 60  # Length of separator lines
-HEADER_CHAR = "="  # Character for headers
-SEPARATOR_CHAR = "-"  # Character for separators
-MAX_RETRIES = 3  # Maximum download retry attempts
-RETRY_DELAY = 2  # Seconds between retries
+SEPARATOR_LENGTH = 60
+HEADER_CHAR = "="
+SEPARATOR_CHAR = "-"
+MAX_RETRIES = 3
+RETRY_DELAY = 2
 
-# NEW: default settings for last_session.json
+# Default settings for persistent.json
 DEFAULT_SESSION = {
-    "last_folder": str(Path(__file__).parent.resolve() / "workspace"),
+    "last_folder": str(Path(__file__).parent.resolve() / "temp"),
     "last_from": "PSPIMAGE",
-    "last_to": "JPEG"
+    "last_to": "JPEG",
+    "last_delete": False,
+    "beep_on_complete": False
 }
 
 class NConvertInstaller:
     def __init__(self):
         self.script_dir = Path(__file__).parent.absolute()
-        self.data_dir = self.script_dir / "data"
         self.nconvert_exe = self.script_dir / "nconvert.exe"
-        self.session_file = self.script_dir / "last_session.json"   # NEW
+        self.data_dir = self.script_dir / "data"
+        self.session_file = self.data_dir / "persistent.json"
+        self.workspace_dir = self.script_dir / "temp"
 
-    # -------------------- existing helpers unchanged --------------------
     def clear_screen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -98,7 +161,7 @@ class NConvertInstaller:
         elif machine in ['i386', 'i686', 'x86'] or architecture == '32bit':
             detected = 'x32'
         else:
-            detected = 'x64'
+            detected = 'x64'  # default assumption
         print(f"Detected architecture: {detected} (machine: {machine}, arch: {architecture})")
         return detected
 
@@ -116,28 +179,22 @@ class NConvertInstaller:
             else:
                 print("Invalid selection. Please enter 1, 2, or press Enter.")
 
-    def create_directories(self):
+    def create_workspace(self):
         try:
-            self.data_dir.mkdir(exist_ok=True)
-            self.print_status(f"Data directory ready: {self.data_dir}")
+            self.workspace_dir.mkdir(exist_ok=True)
+            self.print_status(f"Workspace directory ready: {self.workspace_dir}")
             return True
-        except PermissionError:
-            self.print_status("Permission denied creating data directory", success=False)
-            return False
         except Exception as e:
-            self.print_status(f"Error creating directories: {e}", success=False)
+            self.print_status(f"Failed to create workspace directory: {e}", success=False)
             return False
 
-    # -------------------- download / extract helpers unchanged --------------------
     def download_file(self, url, destination):
         retry_count = 0
         downloaded_bytes = 0
-        total_size = 0
-        last_valid_position = 0
         if destination.exists():
             downloaded_bytes = destination.stat().st_size
             print(f"Resuming download at: {downloaded_bytes/(1024*1024):.1f}MB")
-            last_valid_position = downloaded_bytes
+        
         while retry_count < MAX_RETRIES:
             try:
                 req = urllib.request.Request(url)
@@ -146,96 +203,38 @@ class NConvertInstaller:
                 print(f"Download attempt {retry_count + 1}/{MAX_RETRIES}")
                 start_time = time.time()
                 with urllib.request.urlopen(req) as response:
-                    content_range = response.getheader('Content-Range')
-                    if content_range:
-                        total_size = int(content_range.split('/')[-1])
-                    else:
-                        total_size = int(response.getheader('Content-Length', 0)) + downloaded_bytes
-                    if downloaded_bytes > 0 and content_range is None:
-                        print("Server doesn't support resume - restarting")
-                        downloaded_bytes = 0
-                        last_valid_position = 0
-                        mode = 'wb'
-                    else:
-                        mode = 'ab' if downloaded_bytes > 0 else 'wb'
-                    with open(destination, mode) as f:
+                    total_size = int(response.getheader('Content-Length', 0)) + downloaded_bytes
+                    with open(destination, 'ab' if downloaded_bytes > 0 else 'wb') as f:
                         while True:
                             chunk = response.read(8192)
                             if not chunk:
                                 break
                             f.write(chunk)
                             downloaded_bytes += len(chunk)
-                            last_valid_position = downloaded_bytes
                             if total_size > 0:
                                 percent = (downloaded_bytes * 100) // total_size
                                 mb_downloaded = downloaded_bytes / (1024 * 1024)
                                 print(f"\rProgress: {percent}% ({mb_downloaded:.1f}MB)", end='')
-                    elapsed = time.time() - start_time
-                    speed = (downloaded_bytes / (1024 * 1024)) / max(elapsed, 1)
-                    print(f"\nDownload complete: {speed:.1f}MB/s")
-                    try:
-                        with zipfile.ZipFile(destination, 'r') as zip_ref:
-                            if zip_ref.testzip() is not None:
-                                print("ZIP verification failed - retrying")
-                                raise zipfile.BadZipFile("Corrupted download")
-                        return True
-                    except zipfile.BadZipFile:
-                        print("Download corrupted - bad ZIP file")
-                        raise
-            except urllib.error.HTTPError as e:
-                print(f"HTTP error: {e.code}")
-                if e.code == 416:
-                    destination.unlink(missing_ok=True)
-                    downloaded_bytes = 0
-                    last_valid_position = 0
-            except (urllib.error.URLError, ConnectionResetError, TimeoutError) as e:
-                print(f"Network error: {e}")
-            except zipfile.BadZipFile:
-                print("Invalid ZIP structure - retrying")
+                print()  # newline after progress
+                return True
             except Exception as e:
                 print(f"Download error: {e}")
-            if destination.exists():
-                if downloaded_bytes != last_valid_position:
-                    try:
-                        destination.truncate(last_valid_position)
-                        downloaded_bytes = last_valid_position
-                        print(f"Rolled back to last valid position: {last_valid_position} bytes")
-                    except Exception as e:
-                        print(f"Failed to truncate file: {e}")
-                        destination.unlink(missing_ok=True)
-                        downloaded_bytes = 0
-                        last_valid_position = 0
-            retry_count += 1
-            if retry_count < MAX_RETRIES:
-                print(f"Retrying in {RETRY_DELAY}s...")
-                time.sleep(RETRY_DELAY)
-                continue
-        print("Max retries reached")
+                retry_count += 1
+                if retry_count < MAX_RETRIES:
+                    print(f"Retrying in {RETRY_DELAY}s...")
+                    time.sleep(RETRY_DELAY)
         return False
 
     def extract_zip(self, zip_path, extract_to):
         try:
             print(f"Extracting: {zip_path.name}")
-            if not zip_path.exists():
-                self.print_status("ZIP file does not exist", success=False)
-                return False
-            if zip_path.stat().st_size == 0:
-                self.print_status("ZIP file is empty", success=False)
-                return False
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                bad_file = zip_ref.testzip()
-                if bad_file:
-                    self.print_status(f"Corrupted file in ZIP: {bad_file}", success=False)
+                if zip_ref.testzip() is not None:
+                    self.print_status("Corrupted ZIP file", success=False)
                     return False
                 zip_ref.extractall(extract_to)
             self.print_status("Extraction completed")
             return True
-        except zipfile.BadZipFile:
-            self.print_status("Invalid or corrupted ZIP file", success=False)
-            return False
-        except PermissionError:
-            self.print_status("Permission denied during extraction", success=False)
-            return False
         except Exception as e:
             self.print_status(f"Extraction error: {e}", success=False)
             return False
@@ -254,7 +253,6 @@ class NConvertInstaller:
                         destination.unlink()
                     else:
                         shutil.rmtree(destination)
-                    print(f"Replaced existing: {item.name}")
                 shutil.move(str(item), str(destination))
                 moved_count += 1
                 print(f"Moved: {item.name}")
@@ -262,9 +260,6 @@ class NConvertInstaller:
                 nconvert_dir.rmdir()
             self.print_status(f"Moved {moved_count} items successfully")
             return True
-        except PermissionError as e:
-            self.print_status(f"Permission denied moving files: {e}", success=False)
-            return False
         except Exception as e:
             self.print_status(f"Error moving files: {e}", success=False)
             return False
@@ -273,40 +268,29 @@ class NConvertInstaller:
         if self.nconvert_exe.exists():
             self.print_status("nconvert.exe already exists")
             return True
+        
         print("NConvert executable not found, starting download...")
         architecture = self.prompt_architecture()
         url = NCONVERT_URLS[architecture]
         zip_name = f"NConvert-win{'64' if architecture == 'x64' else ''}.zip"
-        zip_path = self.data_dir / zip_name
-        if zip_path.exists():
-            zip_path.unlink()
+        zip_path = tempfile.NamedTemporaryFile(suffix='.zip', delete=False).name
+        zip_path = Path(zip_path)
+
         if not self.download_file(url, zip_path):
-            if zip_path.exists():
-                zip_path.unlink()
+            zip_path.unlink(missing_ok=True)
             return False
-        try:
-            print("Verifying download integrity...")
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                if zip_ref.testzip() is not None:
-                    self.print_status("Download corrupted - bad ZIP file", success=False)
-                    zip_path.unlink()
-                    return False
-        except zipfile.BadZipFile:
-            self.print_status("Invalid ZIP file - download may be incomplete", success=False)
-            zip_path.unlink()
-            return False
-        except Exception as e:
-            self.print_status(f"ZIP verification failed: {e}", success=False)
-            zip_path.unlink()
-            return False
+
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             if not self.extract_zip(zip_path, temp_path):
                 zip_path.unlink(missing_ok=True)
                 return False
             if not self.move_nconvert_files(temp_path):
+                zip_path.unlink(missing_ok=True)
                 return False
+
         zip_path.unlink(missing_ok=True)
+        
         if self.nconvert_exe.exists():
             self.print_status("NConvert installation completed")
             return True
@@ -314,145 +298,137 @@ class NConvertInstaller:
             self.print_status("nconvert.exe not found after installation", success=False)
             return False
 
-    def create_requirements_file(self):
-        try:
-            requirements_path = self.data_dir / "requirements.txt"
-            with open(requirements_path, 'w', encoding='utf-8') as f:
-                for package in REQUIRED_PACKAGES:
-                    f.write(f"{package}\n")
-            self.print_status(f"Requirements file created: {requirements_path.name}")
-            return requirements_path
-        except PermissionError:
-            self.print_status("Permission denied creating requirements file", success=False)
-            return None
-        except Exception as e:
-            self.print_status(f"Error creating requirements file: {e}", success=False)
-            return None
-
-    def install_python_packages(self, requirements_path):
-        try:
-            print("Installing Python packages...")
-            print("Upgrading pip...")
-            pip_upgrade = subprocess.run([
-                sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'
-            ], capture_output=True, text=True)
-            if pip_upgrade.returncode != 0:
-                print("Warning: Could not upgrade pip")
-            result = subprocess.run([
-                sys.executable, '-m', 'pip', 'install', '-r', str(requirements_path)
-            ], capture_output=True, text=True)
+    def install_python_packages(self):
+        print("\nUpgrading build tools (pip, setuptools) to latest...")
+        build_tools = ["pip", "setuptools"]
+        for tool in build_tools:
+            print(f"→ Upgrading {tool} to latest version...")
+            result = subprocess.run(
+                [sys.executable, '-m', 'pip', 'install', '--upgrade', tool],
+                capture_output=True, text=True
+            )
             if result.returncode == 0:
-                self.print_status("Python packages installed successfully")
-                if result.stdout:
-                    print("\nInstallation output:")
-                    print(result.stdout)
+                self.print_status(f"{tool} upgraded successfully")
+            else:
+                self.print_status(f"Failed to upgrade {tool}", success=False)
+                if result.stderr:
+                    print(result.stderr.strip())
+                return False
+
+        print("\nInstalling pinned application packages...")
+        # Create temporary requirements file for pinned dependencies
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as req_file:
+            req_file.write("\n".join(INSTALL_PACKAGES))
+            req_file_path = Path(req_file.name)
+
+        try:
+            result = subprocess.run(
+                [sys.executable, '-m', 'pip', 'install', '-r', str(req_file_path)],
+                capture_output=True, text=True
+            )
+            if result.returncode == 0:
+                self.print_status("All application packages installed successfully")
                 return True
             else:
-                self.print_status("Package installation failed", success=False)
+                self.print_status("Failed to install application packages", success=False)
                 if result.stderr:
-                    print("Error details:")
-                    print(result.stderr)
+                    print(result.stderr.strip())
                 return False
-        except FileNotFoundError:
-            self.print_status("pip not found - Python installation may be incomplete", success=False)
-            return False
-        except Exception as e:
-            self.print_status(f"Error during package installation: {e}", success=False)
-            return False
+        finally:
+            req_file_path.unlink(missing_ok=True)
 
-    # -------------------- NEW: create / overwrite session file --------------------
     def create_default_session_file(self):
         try:
+            self.data_dir.mkdir(exist_ok=True)
             self.session_file.write_text(
                 json.dumps(DEFAULT_SESSION, indent=2),
                 encoding="utf-8"
             )
-            self.print_status(f"Default session file created: {self.session_file.name}")
+            self.print_status(f"Default persistent config created: data/persistent.json")
             return True
         except Exception as e:
-            self.print_status(f"Could not create session file: {e}", success=False)
+            self.print_status(f"Could not create persistent config: {e}", success=False)
             return False
 
-    # -------------------- verify installation unchanged --------------------
     def verify_installation(self):
-        print("\nVerifying installation...")
+        print("\nVerifying critical components...")
         all_good = True
+
         if self.nconvert_exe.exists():
             self.print_status("nconvert.exe found")
         else:
             self.print_status("nconvert.exe missing", success=False)
             all_good = False
-        for package in REQUIRED_PACKAGES:
-            package_name = package.split('==')[0]
+
+        for package_name in CRITICAL_PACKAGES:
             import_name = PACKAGE_IMPORT_MAP.get(package_name, package_name.replace('-', '_'))
             try:
-                result = subprocess.run([
-                    sys.executable, '-c', f'import {import_name}; print("{import_name} OK")'
-                ], capture_output=True, text=True, timeout=10)
-                if result.returncode == 0:
-                    self.print_status(f"{package_name} available")
-                else:
-                    self.print_status(f"{package_name} not importable", success=False)
-                    all_good = False
-            except subprocess.TimeoutExpired:
-                self.print_status(f"{package_name} import timeout", success=False)
-                all_good = False
+                subprocess.run(
+                    [sys.executable, '-c', f'import {import_name}; print("{import_name} OK")'],
+                    capture_output=True, text=True, timeout=8, check=True
+                )
+                self.print_status(f"{package_name} available")
             except Exception as e:
-                self.print_status(f"Could not verify {package_name}: {e}", success=False)
+                self.print_status(f"{package_name} verification failed: {str(e)}", success=False)
                 all_good = False
+
         if all_good:
-            self.print_status("All components verified successfully")
+            self.print_status("All critical components verified successfully")
         else:
-            self.print_status("Some components failed verification", success=False)
+            self.print_status("Some critical components failed verification", success=False)
+        
         return all_good
 
-    # -------------------- main installation flow --------------------
     def run_installation(self):
         self.clear_screen()
         self.print_header("NConvert-Batch Installer")
+
         if not self.check_python_version():
             return False
-        if not self.create_directories():
+
+        if not self.create_workspace():
             return False
+
         if not self.install_nconvert():
             return False
-        requirements_path = self.create_requirements_file()
-        if not requirements_path:
+
+        if not self.install_python_packages():
             return False
-        if not self.install_python_packages(requirements_path):
-            return False
-        # NEW: always create / overwrite session file
+
         if not self.create_default_session_file():
             return False
+
         success = self.verify_installation()
+
+        print("\n" + "=" * SEPARATOR_LENGTH)
         if success:
-            print("    Installation Completed Successfully")
+            print("✓ Installation completed successfully!")
+            print("\nYou can now run NConvert-Batch.bat")
         else:
-            print("    Installation Issues Detected")
-            print("Please review the errors above and try again.")
+            print("✗ Installation encountered issues")
+            print("Please review the messages above")
+
         return success
+
 
 def main():
     installer = NConvertInstaller()
     try:
         success = installer.run_installation()
-        print(f"\n{'='*SEPARATOR_LENGTH}")
-        if success:
-            print("✓ Installation completed successfully!")
-        else:
-            print("✗ Installation encountered errors!")
-        print("Press Enter to exit...")
+        print("\nPress Enter to exit...")
         input()
         sys.exit(0 if success else 1)
     except KeyboardInterrupt:
         print("\n\nInstallation cancelled by user")
         sys.exit(1)
     except Exception as e:
-        installer.print_header("Unexpected Error")
-        print(f"An unexpected error occurred: {e}")
+        print("\n" + "=" * 60)
+        print("Unexpected error during installation:")
+        print(str(e))
         print("\nPress Enter to exit...")
         input()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

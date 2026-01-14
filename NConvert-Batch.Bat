@@ -154,30 +154,21 @@ if "!choice!"=="1" (
 cls
 call :printHeader "Run NConvert-Batch"
 echo.
-echo Running Python Gradio Version...
-echo Using Python executable: %PYTHON_EXE_TO_USE%
+echo Launching NConvert Batch Converter...
 echo.
 
-:: Debug Output: Python Version
-echo Checking Python version...
-"%PYTHON_EXE_TO_USE%" --version
-echo.
+:: Run the Python script directly
+"%PYTHON_EXE_TO_USE%" .\program.py
 
-:: Debug Output: Installed Packages
-echo Listing installed packages...
-"%PYTHON_EXE_TO_USE%" -m pip list
-echo.
+:: Check if program exited with error
+if errorlevel 1 (
+    echo.
+    echo Error: Program failed to run properly.
+    echo Please run the installer option again from the main menu.
+)
 
-:: Debug Output: Gradio Package Location
-echo Checking for gradio package...
-"%PYTHON_EXE_TO_USE%" -m pip show gradio
-echo.
-
-:: Run the Python script
-echo Launching launcher.py...
-"%PYTHON_EXE_TO_USE%" .\launcher.py
 pause
-goto :end_of_file
+goto :main_menu
 
 :: Run Python installer
 :run_installer
