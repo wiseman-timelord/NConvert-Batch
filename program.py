@@ -30,7 +30,7 @@ workspace_path = os.path.abspath(os.path.join(".", "temp"))
 DATA_DIR = Path(__file__).parent / "data"
 SETTINGS_FILE = DATA_DIR / "persistent.json"
 nconvert_path = str(Path(__file__).parent / "nconvert.exe")
-allowed_formats = ["JPEG", "PNG", "BMP", "GIF", "TIFF", "HEIF", "WEBP", "SVG", "PSD", "PSPIMAGE"]
+allowed_formats = ["JPEG", "PNG", "BMP", "GIF", "TIFF", "AVIF", "WEBP", "SVG", "PSD", "PSPIMAGE"]
 
 # Session defaults
 _session = {
