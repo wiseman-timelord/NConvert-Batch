@@ -83,6 +83,10 @@ Its a Python Gradio interface for converting ANY image format to ANY imgage form
 - NConvert-Batch is the Windows version of [NConvert-Bash](https://github.com/wiseman-timelord/NConvert-Bash).
 - A slideshow window for after conversion was attempted in, Qwen3-Max and Grok, but both failed, 50/50 on the idea anyhow.
 
+### Development:
+- Merge, "NConvert-Batch" and "NConvert-Bash", into "NConvert-GUI", with Dual-mode scripts. Includine introduction of ".\scripts\configure.py" for, globals and load/save config. Requiring the deletion of project "NConvert-Bash".
+- Rename "program.py" to "launcher.py", in order for the python scripts to sit next to each other neatly in the folder.
+
 ## DISCLAIMER:
 This software is subject to the terms in License.Txt, covering usage, distribution, and modifications. For full details on your rights and obligations, refer to License.Txt.
 NConvert is not made by Wiseman-Timelord, only the, Gradio Interface and Batch Launcher/Installer, is; Terms and Conditions, for NConvert still apply.
