@@ -1,5 +1,5 @@
 # NConvert-Batch
-Status: Working - Recently bugfixed on Windows 10 + Python 3.12. Compatibility should now be windows 7-11 again.
+Status: Working - Recently added cases of operation for windows 7/8/8.1/10/11, for more robust termination upon "Exit Program".
 
 ### Description:
 Its a Python Gradio interface for converting ANY image format to ANY imgage format, even rare ones like .pspimage, all made possible through NConvert binary command line tool. The program provides a user-friendly menu to set the source folder, input file format, and desired output format. The scripts ensures efficient and seamless conversion and management of image files, making it a practical tool for users needing to process multiple common format such as `.jpg`, `.bmp`, `.png`, etc, and also less common formats such as`.pspimage`, and vice versa, and another thing, it does this recursively through subfolders, so you can just aim it at windows pictures folder, and everything will be where it was, just in the new format too.
