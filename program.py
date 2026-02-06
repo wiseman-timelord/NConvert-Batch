@@ -17,12 +17,41 @@ from pathlib import Path
 import json
 from tkinter import filedialog
 import winsound
+import platform
+import ctypes
+import signal
+import atexit
 
 print("..Imports Completed.")
 
 print("Initializing Program...")
 # ─── Global References ──────────────────────────────────────────────────────────
 global_demo = None
+_shutdown_requested = False
+
+# ─── OS Detection & Compatibility ───────────────────────────────────────────────
+
+def get_windows_version():
+    """Detect Windows version for compatibility handling."""
+    if os.name != 'nt':
+        return None
+    version = sys.getwindowsversion()
+    major = version.major
+    if major == 6:
+        if version.minor == 1:
+            return "win7"
+        elif version.minor == 2:
+            return "win8"
+        elif version.minor == 3:
+            return "win81"
+    elif major == 10:
+        if version.build >= 22000:
+            return "win11"
+        return "win10"
+    return "unknown"
+
+WINDOWS_VERSION = get_windows_version()
+print(f"Detected OS: {WINDOWS_VERSION or 'Non-Windows'}")
 
 # ─── Paths & Globals ────────────────────────────────────────────────────────────
 
@@ -122,22 +151,133 @@ def find_files_to_convert():
                 files.append(os.path.join(root, fn))
     return files
 
-def graceful_shutdown():
-    save_last_session()
-    print("Shutting down NConvert Batch Converter...")
+# ─── ROBUST EXIT HANDLING ───────────────────────────────────────────────────────
+
+def terminate_process_tree(pid=None):
+    """Kill all child processes recursively."""
+    if pid is None:
+        pid = os.getpid()
     try:
-        if global_demo is not None:
-            global_demo.close()
-            time.sleep(0.6)
+        parent = psutil.Process(pid)
+        children = parent.children(recursive=True)
+        for child in children:
+            try:
+                child.terminate()
+            except:
+                pass
+        _, alive = psutil.wait_procs(children, timeout=3)
+        for child in alive:
+            try:
+                child.kill()
+            except:
+                pass
+    except:
+        pass
+
+def force_exit_windows():
+    """Force exit using Windows API for older Windows versions."""
+    try:
+        # Use ExitProcess API for clean exit on Windows
+        ctypes.windll.kernel32.ExitProcess(0)
+    except:
+        pass
+
+def graceful_shutdown():
+    """
+    Robust cross-platform shutdown handler.
+    Works on Windows 7/8/8.1/10/11 with multiple fallback strategies.
+    """
+    global _shutdown_requested, global_demo
+    
+    if _shutdown_requested:
+        return  # Prevent double execution
+    _shutdown_requested = True
+    
+    print("\n" + "="*50)
+    print("INITIATING SHUTDOWN SEQUENCE...")
+    print("="*50)
+    
+    # Step 1: Save session data
+    try:
+        save_last_session()
+        print("✓ Session saved")
     except Exception as e:
-        print(f"Graceful close failed: {e}")
-    print("Process terminated cleanly")
-    os._exit(0)
+        print(f"! Session save warning: {e}")
+    
+    # Step 2: Signal shutdown to prevent new operations
+    print("✓ Shutdown flag set")
+    
+    # Step 3: Close Gradio interface (async-safe method)
+    if global_demo is not None:
+        try:
+            # Method 1: Try to close the server directly
+            if hasattr(global_demo, 'server') and global_demo.server:
+                try:
+                    global_demo.server.should_exit = True
+                    global_demo.server.force_exit = True
+                    print("✓ Server exit signaled")
+                except:
+                    pass
+            
+            # Method 2: Close the blocks interface
+            try:
+                global_demo.close()
+                print("✓ Interface closed")
+            except Exception as e:
+                print(f"! Interface close warning: {e}")
+                
+        except Exception as e:
+            print(f"! Gradio cleanup warning: {e}")
+    
+    # Step 4: Small delay for cleanup
+    time.sleep(0.3)
+    
+    # Step 5: Terminate child processes
+    terminate_process_tree()
+    print("✓ Child processes cleaned")
+    
+    # Step 6: OS-specific exit strategy
+    print("Executing exit...")
+    
+    # Strategy A: Windows-specific force exit (most reliable on Win 7/8)
+    if os.name == 'nt':
+        try:
+            force_exit_windows()
+        except:
+            pass
+    
+    # Strategy B: Standard sys.exit (works on most modern Windows)
+    try:
+        sys.exit(0)
+    except:
+        pass
+    
+    # Strategy C: os._exit (harsh but effective)
+    try:
+        os._exit(0)
+    except:
+        pass
+    
+    # Strategy D: Last resort - kill self
+    try:
+        os.kill(os.getpid(), signal.SIGTERM)
+    except:
+        pass
+    
+    # Should never reach here, but just in case
+    while True:
+        time.sleep(1)
+
+# Register cleanup on normal exit
+atexit.register(save_last_session)
 
 # ─── Main Conversion ────────────────────────────────────────────────────────────
 
 def start_conversion():
     global files_process_done, files_process_total
+
+    if _shutdown_requested:
+        return "Error: Shutdown in progress."
 
     if not os.path.exists(folder_location):
         return "Error: Invalid folder location."
@@ -152,6 +292,10 @@ def start_conversion():
     log = [f"Processing {files_process_total} file(s)...\n"]
 
     for infile in files:
+        if _shutdown_requested:
+            log.append("\n! Shutdown requested, stopping...")
+            break
+            
         outfile = os.path.splitext(infile)[0] + f".{format_to.lower()}"
         infile_abs = os.path.abspath(infile)
         outfile_abs = os.path.abspath(outfile)
@@ -189,10 +333,12 @@ def start_conversion():
             log.append(f"{filename_display} - ERROR: {str(e)}")
 
     # Delete originals if requested
-    if delete_files_after:
+    if delete_files_after and not _shutdown_requested:
         deleted_count = 0
         converted_set = set(newly_converted)
         for orig in files:
+            if _shutdown_requested:
+                break
             expected = os.path.splitext(orig)[0] + f".{format_to.lower()}"
             if expected in converted_set:
                 try:
@@ -216,7 +362,7 @@ def start_conversion():
         log.insert(1, "All files converted successfully ✓\n")
 
     # Beep on completion
-    if beep_on_complete and files_process_done > 0:
+    if beep_on_complete and files_process_done > 0 and not _shutdown_requested:
         def delayed_beep():
             time.sleep(0.5)
             if os.name == 'nt':
@@ -304,7 +450,11 @@ def create_interface():
             return new_location, ""
 
         def handle_exit():
-            graceful_shutdown()
+            # Run exit in separate thread to avoid blocking Gradio event loop
+            exit_thread = Thread(target=graceful_shutdown, daemon=True)
+            exit_thread.start()
+            # Return immediately to satisfy Gradio's request
+            return "Shutting down... Please close browser tab manually if needed."
 
         # ─── Bindings ───────────────────────────────────────────────────────────
 
@@ -329,7 +479,10 @@ def create_interface():
             outputs=result_box
         )
 
-        exit_btn.click(fn=handle_exit)
+        exit_btn.click(
+            fn=handle_exit,
+            outputs=result_box
+        )
 
     return demo
 
@@ -366,17 +519,31 @@ def launch():
     close_old_gradio(port)
 
     print(f"Launching interface on http://localhost:{port}")
+    print(f"OS Version: {WINDOWS_VERSION or 'Non-Windows'}")
     Timer(2.5, lambda: webbrowser.open(f"http://localhost:{port}")).start()
 
     demo = create_interface()
     global_demo = demo
+
+    # Setup signal handlers for clean exit on Ctrl+C
+    def signal_handler(sig, frame):
+        print("\nSignal received, shutting down...")
+        graceful_shutdown()
+    
+    if os.name == 'nt':
+        try:
+            signal.signal(signal.SIGINT, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
+        except:
+            pass
 
     demo.launch(
         server_name="127.0.0.1",
         server_port=port,
         share=False,
         inbrowser=False,
-        quiet=False
+        quiet=False,
+        prevent_thread_lock=False  # Allow proper shutdown
     )
 
 if __name__ == "__main__":
