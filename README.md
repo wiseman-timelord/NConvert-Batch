@@ -84,7 +84,7 @@ Its a Python Gradio interface for converting ANY image format to ANY imgage form
 - A slideshow window for after conversion was attempted in, Qwen3-Max and Grok, but both failed, 50/50 on the idea anyhow.
 
 ### Development:
-- Merge, "NConvert-Batch" and "NConvert-Bash", into "NConvert-GUI", with Dual-mode scripts. Includine introduction of ".\scripts\configure.py" for, globals and load/save config. Requiring the deletion of project "NConvert-Bash".
+- Merge, "NConvert-Batch" and "NConvert-Bash", into "NConvert-GUI", with Dual-mode scripts. Includine introduction of ".\scripts\configure.py" for, globals and load/save config. Requiring the deletion of project "NConvert-Bash". This will not be able to be done until I have a Ubuntu setup again.
 - Rename "program.py" to "launcher.py", in order for the python scripts to sit next to each other neatly in the folder.
 
 ## DISCLAIMER:
