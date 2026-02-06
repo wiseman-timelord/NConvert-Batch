@@ -75,6 +75,7 @@ Its a Python Gradio interface for converting ANY image format to ANY imgage form
 8. Check the image folders, I saved you hours of work, but I did say I was a TimeLord ha.
 
 ### NOTATION:
+- If you want to display, for example "AVIF" format, in the Windows Explorer thumbnails, then you should install [Icaros](https://github.com/Xanashi/Icaros/releases), then in the configuration add, in the case of the example ".avif", to the file extension list, and activate it.
 - De-Confustion... Meaning 1: "Batch" - a `*.bat` Windows Batch file. Meaning 2: "Batch" - Repetitive actions done together in sequence.
 - If you want others among the ~500 possible formats, then you will need to manually edit the top of ".\launcher.py".
 - Thanks to, DeepSeek v2.5-v3 and GPT-4o and Claudev4 and Grok and Qwen3-Max, for assistance in programming. 
